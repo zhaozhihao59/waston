@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="watson"
+  id="myeclipse.1364866465638"
+  context-root="/watson"
+  j2ee-spec="5.0"
+  archive="watson.war">
+  <attributes>
+    <attribute name="webrootdir" value="/WebRoot" />
+  </attributes>
+</project-module>
+
