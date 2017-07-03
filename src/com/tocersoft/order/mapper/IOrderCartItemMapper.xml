@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.order.dao.IOrderCartItemDao">
+	<resultMap type="orderCartItem" id="orderCartItemResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记位：0-未删除；1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--会员ID -->
+		<result property="memberId" column="C_MEMBER_ID" />
+		<!--产品ID -->
+		<result property="productId" column="C_PRODUCT_ID" />
+		<!--产品SKU的ID -->
+		<result property="productSkuId" column="C_PRODUCT_SKU_ID" />
+		<!--订购数量 -->
+		<result property="num" column="C_NUM" />
+		<!--备注 -->
+		<result property="remark" column="C_REMARK" />
+		
+		<!-- 产品 -->
+		<association property="product" javaType="product" column="C_PRODUCT_ID">
+			<id property="id" column="C_PRODUCT_ID" />
+			<result property="name" column="C_PRODUCT_NAME" />
+			<result property="unitPrice" column="C_UNIT_PRICE" />
+			<result property="imageUrl" column="C_IMAGE_URL" />
+			<result property="brandName" column="C_BRAND_NAME" />
+		</association>
+		
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_MEMBER_ID,
+		o.C_PRODUCT_ID,
+		o.C_PRODUCT_SKU_ID,
+		o.C_NUM,
+		o.C_REMARK
+	</sql>
+	
+	<sql id="allColumnSqlJoin">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_MEMBER_ID,
+		o.C_PRODUCT_ID,
+		o.C_PRODUCT_SKU_ID,
+		o.C_NUM,
+		o.C_REMARK,
+		p.C_NAME AS C_PRODUCT_NAME, 
+		p.C_UNIT_PRICE AS C_UNIT_PRICE,
+		p.C_IMAGE_URL AS C_IMAGE_URL, 
+		b.C_NAME AS C_BRAND_NAME
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.memberId != null and condition.memberId != ''">
+			AND o.C_MEMBER_ID like '%${condition.memberId}%' 
+		</if>
+		<if test="condition.productId != null and condition.productId != ''">
+			AND o.C_PRODUCT_ID like '%${condition.productId}%' 
+		</if>
+		<if test="condition.productSkuId != null and condition.productSkuId != ''">
+			AND o.C_PRODUCT_SKU_ID like '%${condition.productSkuId}%' 
+		</if>
+		<if test="condition.remark != null and condition.remark != ''">
+			AND o.C_REMARK like '%${condition.remark}%' 
+		</if>
+
+	</sql>
+
+	<select id="listOrderCartItemByPage" resultMap="orderCartItemResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_cart_item o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listOrderCartItemByPageCount" resultType="int">
+		SELECT count(1) FROM order_cart_item o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="listOrderCartItemByMemberId" resultMap="orderCartItemResultMap">
+		SELECT <include refid="allColumnSqlJoin"/> 
+		FROM order_cart_item o 
+		LEFT JOIN product p ON p.ID = o.C_PRODUCT_ID 
+		LEFT JOIN product_brand b ON b.ID = p.C_BRAND_ID 
+		WHERE C_MEMBER_ID = #{memberId}
+	</select>
+	
+	<select id="getOrderCartItemById" resultMap="orderCartItemResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_cart_item o
+		WHERE o.ID = #{id}
+	</select>
+
+	<insert id="add" parameterType="orderCartItem">
+		INSERT INTO order_cart_item
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_MEMBER_ID,
+		C_PRODUCT_ID,
+		C_PRODUCT_SKU_ID,
+		C_NUM,
+		C_REMARK
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{memberId},
+		#{productId},
+		#{productSkuId},
+		#{num},
+		#{remark}
+		)
+	</insert>
+
+	<update id="update" parameterType="orderCartItem" >
+		UPDATE order_cart_item SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_MEMBER_ID = #{memberId},
+		C_PRODUCT_ID = #{productId},
+		C_PRODUCT_SKU_ID = #{productSkuId},
+		C_NUM = #{num},
+		C_REMARK = #{remark}
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="updateNum">
+		UPDATE order_cart_item SET 
+		C_UPDATE_DATE = SYSDATE(),
+		C_NUM = #{newNum}
+		WHERE ID = #{itemId}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM order_cart_item 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

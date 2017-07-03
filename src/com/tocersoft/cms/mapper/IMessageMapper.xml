@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.cms.dao.IMessageDao">
+	<resultMap type="message" id="messageResultMap" extends="BaseBusEntity.entity">
+		<result column="ID" property="id" />
+		<result column="C_CREATE_BY" property="createBy" />
+		<result column="C_CREATE_DATE" property="createDate" />
+		<result column="C_UPDATE_BY" property="updateBy" />
+		<result column="C_UPDATE_DATE" property="updateDate" />
+		<result column="C_DELETE_FLAG" property="deleteFlag" />
+		
+		<result column="C_CONTENT" property="content" />
+		<result column="C_EMAIL" property="email" />
+		<result column="C_OTHER" property="other" />
+		<result column="C_STATUS" property="status" />
+		<result column="C_REPLY_ID" property="replyId" />	
+		<result column="C_REPLY_NAME" property="replyName" />
+		<result column="C_REPLY_DATE" property="replyDate" />
+		<result column="C_IP" property="ip" />
+		
+		<result property="replyDateStart" column="C_REPLY_DATE_START"/>
+		<result property="replyDateEnd" column="C_REPLY_DATE_END"/>
+		<result property="hopeKnow" column="C_HOPE_KNOW"/>
+		<result property="productName" column="C_PRODUCT_NAME"/>
+		<result property="messageType" column="C_MESSAGE_TYPE"/>
+		<result property="otherContent" column="C_OTHER_CONTENT"/>
+		<result property="mobile" column="C_MOBILE"/>
+		<result property="createName" column="C_CREATE_NAME"/>
+		<result property="productId" column="C_PRODUCT_ID"/>
+	</resultMap>
+	
+	<sql id="allColumnSql">
+		<![CDATA[
+			u.ID,
+			u.C_CREATE_DATE,
+			u.C_CREATE_BY,
+			u.C_UPDATE_DATE,
+			u.C_CONTENT,
+			u.C_EMAIL,
+			u.C_OTHER,
+			u.C_STATUS,
+			u.C_REPLY_ID,
+			u.C_REPLY_DATE,
+			u.C_IP,
+			a.C_NAME as C_REPLY_NAME,
+			
+			u.C_REPLY_DATE_START,
+			u.C_REPLY_DATE_END,
+			u.C_HOPE_KNOW,
+			u.C_PRODUCT_NAME,
+			u.C_MESSAGE_TYPE,
+			u.C_OTHER_CONTENT,
+			u.C_MOBILE,
+			u.C_CREATE_NAME,
+			u.C_PRODUCT_ID
+		]]>
+	</sql>
+	
+	<sql id="allColumnSqlSingle">
+		<![CDATA[
+			u.ID,
+			u.C_CREATE_DATE,
+			u.C_CREATE_BY,
+			u.C_UPDATE_DATE,
+			u.C_CONTENT,
+			u.C_EMAIL,
+			u.C_OTHER,
+			u.C_STATUS,
+			u.C_REPLY_ID,
+			u.C_REPLY_DATE,
+			u.C_IP,
+			u.C_REPLY_DATE_START,
+			u.C_REPLY_DATE_END,
+			u.C_HOPE_KNOW,
+			u.C_PRODUCT_NAME,
+			u.C_MESSAGE_TYPE,
+			u.C_OTHER_CONTENT,
+			u.C_MOBILE,
+			u.C_CREATE_NAME,
+			u.C_PRODUCT_ID
+		]]>
+	</sql>
+	
+	<sql id="searchByPageConditionSql">
+		<if test=" condition.productName != null and condition.productName !='' ">
+			<![CDATA[
+				and u.C_PRODUCT_NAME like CONCAT('%',#{condition.productName},'%')
+			]]>
+		</if>
+		<if test=" condition.status != null and condition.status !='' ">
+			<![CDATA[
+				and u.C_STATUS = #{condition.status} 
+			]]>
+		</if>
+		<if test=" condition.messageType != null and condition.messageType !='' ">
+			<![CDATA[
+				and u.C_MESSAGE_TYPE = #{condition.messageType} 
+			]]>
+		</if>
+		<if test=" condition.escapeSymbol ">
+		 	<![CDATA[
+		 	ESCAPE '/'
+		 	]]>
+		 </if>
+	</sql>
+	
+	<!-- 分页 -->
+	<select id="getMessageByPage" resultMap="messageResultMap">
+		SELECT <include refid="allColumnSql"/> from cms_message u 
+		LEFT JOIN auth_user a ON a.ID = u.C_REPLY_ID 
+		WHERE u.C_DELETE_FLAG = 0 
+		<include refid="searchByPageConditionSql"/>
+		order by u.C_CREATE_DATE desc
+	</select>
+	
+	<!-- 分页查询数量 -->
+	<select id="getMessageByPageCount" parameterType="message" resultType="int">
+		SELECT count(1) from cms_message u 
+		LEFT JOIN auth_user a ON a.ID = u.C_REPLY_ID 
+		WHERE u.C_DELETE_FLAG = 0 
+		<include refid="searchByPageConditionSql"/>
+	</select>
+	
+	<!-- 根据ID查 -->
+	<select id="getMessageById" resultMap="messageResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		FROM cms_message u 
+		LEFT JOIN auth_user a ON a.ID = u.C_REPLY_ID 
+		WHERE u.C_DELETE_FLAG = 0 
+		and u.ID = #{id}
+	</select>
+	
+	<!-- 新增记录 -->
+	<insert id="addMessage" parameterType="message">
+		INSERT INTO cms_message (
+			ID,
+			C_CREATE_DATE,
+			C_CREATE_BY,
+			C_UPDATE_DATE,
+			C_DELETE_FLAG,
+			C_CONTENT ,
+			C_EMAIL ,
+			C_OTHER ,
+			C_STATUS ,
+			C_IP,
+			
+			C_REPLY_DATE_START,
+			C_REPLY_DATE_END,
+			C_HOPE_KNOW,
+			C_PRODUCT_NAME,
+			C_MESSAGE_TYPE,
+			C_OTHER_CONTENT,
+			C_MOBILE,
+			C_CREATE_NAME,
+			C_PRODUCT_ID
+		)values(
+			UUID(),
+			SYSDATE(),
+			#{createBy},
+			SYSDATE(),
+			0,
+			#{content},
+			#{email},
+			#{other},
+			0,
+			#{ip},
+			
+			#{replyDateStart},
+			#{replyDateEnd},
+			#{hopeKnow},
+			#{productName},
+			#{messageType},
+			#{otherContent},
+			#{mobile},
+			#{createName},
+			#{productId}
+		)
+	</insert>
+	
+	<!-- 更新状态 -->
+	<update id="updataMessage" parameterType="message">
+		UPDATE cms_message c SET 
+		c.C_STATUS = #{status},
+		c.C_REPLY_ID = #{replyId},
+		c.C_REPLY_DATE = SYSDATE(),
+		c.C_UPDATE_DATE = SYSDATE(),
+		c.C_MESSAGE_TYPE = #{messageType}
+		WHERE c.ID = #{id}
+	</update>
+	
+	<!-- 更新状态 -->
+	<update id="replyMessage" parameterType="message">
+		UPDATE cms_message c SET 
+		c.C_STATUS = #{status},
+		c.C_REPLY_ID = #{replyId},
+		c.C_REPLY_DATE = SYSDATE(),
+		c.C_UPDATE_DATE = SYSDATE()
+		WHERE c.ID = #{id}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="delMessage">
+		DELETE FROM cms_message 
+		WHERE ID =#{id}
+	</delete>
+	
+	<!-- 根据ID查 -->
+	<select id="listMessageByMemberProductId" resultMap="messageResultMap">
+		SELECT 
+		<include refid="allColumnSqlSingle"/> 
+		FROM cms_message u 
+		WHERE u.C_DELETE_FLAG = 0 
+		AND u.C_PRODUCT_ID = #{productId} 
+		AND u.C_CREATE_BY = #{memberId} 
+	</select>
+	
+</mapper>

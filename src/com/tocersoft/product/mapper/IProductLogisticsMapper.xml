@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IProductLogisticsDao">
+	<resultMap type="productLogistics" id="productLogisticsResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--对应的产品ID -->
+		<result property="productId" column="C_PRODUCT_ID" />
+		<!--运费模式：0-买家承担运费，1-卖家承担运费 -->
+		<result property="freightType" column="C_FREIGHT_TYPE" />
+		<!--运费模板ID -->
+		<result property="templateId" column="C_TEMPLATE_ID" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_PRODUCT_ID,
+		o.C_FREIGHT_TYPE,
+		o.C_TEMPLATE_ID
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.productId != null and condition.productId != ''">
+			AND o.C_PRODUCT_ID like '%${condition.productId}%' 
+		</if>
+		<if test="condition.freightType != null and condition.freightType != ''">
+			AND o.C_FREIGHT_TYPE like '%${condition.freightType}%' 
+		</if>
+		<if test="condition.templateId != null and condition.templateId != ''">
+			AND o.C_TEMPLATE_ID like '%${condition.templateId}%' 
+		</if>
+
+	</sql>
+
+	<select id="listProductLogisticsByPage" resultMap="productLogisticsResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_logistics o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listProductLogisticsByPageCount" resultType="int">
+		SELECT count(1) FROM product_logistics o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getProductLogisticsById" resultMap="productLogisticsResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_logistics o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<select id="getProductLogisticsByProductId" resultMap="productLogisticsResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_logistics o
+		WHERE o.C_PRODUCT_ID = #{productId}
+	</select>
+
+	<insert id="add" parameterType="productLogistics">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO product_logistics
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_PRODUCT_ID,
+		C_FREIGHT_TYPE,
+		C_TEMPLATE_ID
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{productId},
+		#{freightType},
+		#{templateId}
+		)
+	</insert>
+
+	<update id="update" parameterType="productLogistics" >
+		UPDATE product_logistics SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_PRODUCT_ID = #{productId},
+		C_FREIGHT_TYPE = #{freightType},
+		C_TEMPLATE_ID = #{templateId}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM product_logistics 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.order.dao.IFreightTemplateItemDao">
+	<resultMap type="freightTemplateItem" id="freightTemplateItemResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除：0-不删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--运费模板ID -->
+		<result property="templateId" column="C_TEMPLATE_ID" />
+		<!--到达城市列表：上海市，浙江省，江苏省，安徽省 -->
+		<result property="arrivalCityList" column="C_ARRIVAL_CITY_LIST" />
+		<!--首重价格 -->
+		<result property="firstWeightFee" column="C_FIRST_WEIGHT_FEE" />
+		<!--首重重量 -->
+		<result property="firstWeight" column="C_FIRST_WEIGHT" />
+		<!--续重价格 -->
+		<result property="continuedWeightFee" column="C_CONTINUED_WEIGHT_FEE" />
+		<!--续重重量 -->
+		<result property="continuedWeight" column="C_CONTINUED_WEIGHT" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_TEMPLATE_ID,
+		o.C_ARRIVAL_CITY_LIST,
+		o.C_FIRST_WEIGHT_FEE,
+		o.C_FIRST_WEIGHT,
+		o.C_CONTINUED_WEIGHT_FEE,
+		o.C_CONTINUED_WEIGHT
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.templateId != null and condition.templateId != ''">
+			AND o.C_TEMPLATE_ID like concat('%',#{condition.templateId},'%') 
+		</if>
+		<if test="condition.arrivalCityList != null and condition.arrivalCityList != ''">
+			AND o.C_ARRIVAL_CITY_LIST like concat('%',#{condition.arrivalCityList},'%') 
+		</if>
+
+	</sql>
+
+	<select id="listFreightTemplateItemByPage" resultMap="freightTemplateItemResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_freight_template_item o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listFreightTemplateItemByPageCount" resultType="int">
+		SELECT count(1) FROM order_freight_template_item o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	
+	<select id="listFreightTemplateItemByCondition" resultMap="freightTemplateItemResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_freight_template_item o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getFreightTemplateItemById" resultMap="freightTemplateItemResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_freight_template_item o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<select id="getFreightTemplateItemByTemplateIdAndItemName" resultMap="freightTemplateItemResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_freight_template_item o
+		WHERE o.C_TEMPLATE_ID = #{freightTemplateId}
+		AND o.C_ARRIVAL_CITY_LIST LIKE concat('%',#{arrivalCity},'%') 
+		LIMIT 0,1
+	</select>
+
+	<insert id="add" parameterType="freightTemplateItem">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO order_freight_template_item(ID,C_CREATE_BY,C_CREATE_DATE,C_UPDATE_BY,C_UPDATE_DATE,C_DELETE_FLAG,C_TEMPLATE_ID,C_ARRIVAL_CITY_LIST,C_FIRST_WEIGHT_FEE,C_FIRST_WEIGHT,C_CONTINUED_WEIGHT_FEE,C_CONTINUED_WEIGHT)
+		VALUES
+		(#{id},#{createBy},#{createDate},#{updateBy},#{updateDate},#{deleteFlag},#{templateId},#{arrivalCityList},#{firstWeightFee},#{firstWeight},#{continuedWeightFee},#{continuedWeight})
+	</insert>
+
+	<update id="update" parameterType="freightTemplateItem" >
+		UPDATE order_freight_template_item SET
+		C_CREATE_BY = #{createBy},
+		C_CREATE_DATE = #{createDate},
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = #{updateDate},
+		C_DELETE_FLAG = #{deleteFlag},
+		C_TEMPLATE_ID = #{templateId},
+		C_ARRIVAL_CITY_LIST = #{arrivalCityList},
+		C_FIRST_WEIGHT_FEE = #{firstWeightFee},
+		C_FIRST_WEIGHT = #{firstWeight},
+		C_CONTINUED_WEIGHT_FEE = #{continuedWeightFee},
+		C_CONTINUED_WEIGHT = #{continuedWeight}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM order_freight_template_item 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IProductPackageDao">
+	<resultMap type="productPackage" id="productPackageResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--对应的产品ID -->
+		<result property="productId" column="C_PRODUCT_ID" />
+		<!--单位重量 -->
+		<result property="grossWeight" column="C_GROSS_WEIGHT" />
+		<!--高度 -->
+		<result property="height" column="C_HEIGHT" />
+		<!--长度 -->
+		<result property="length" column="C_LENGTH" />
+		<!--数量 -->
+		<result property="lots" column="C_LOTS" />
+		<!--单位ID -->
+		<result property="measureId" column="C_MEASURE_ID" />
+		<!--每包销售数量 -->
+		<result property="packingQuantity" column="C_PACKING_QUANTITY" />
+		<!--宽度 -->
+		<result property="width" column="C_WIDTH" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_PRODUCT_ID,
+		o.C_GROSS_WEIGHT,
+		o.C_HEIGHT,
+		o.C_LENGTH,
+		o.C_LOTS,
+		o.C_MEASURE_ID,
+		o.C_PACKING_QUANTITY,
+		o.C_WIDTH
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.productId != null and condition.productId != ''">
+			AND o.C_PRODUCT_ID like '%${condition.productId}%' 
+		</if>
+		<if test="condition.measureId != null and condition.measureId != ''">
+			AND o.C_MEASURE_ID like '%${condition.measureId}%' 
+		</if>
+
+	</sql>
+
+	<select id="listProductPackageByPage" resultMap="productPackageResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_package o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listProductPackageByPageCount" resultType="int">
+		SELECT count(1) FROM product_package o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getProductPackageById" resultMap="productPackageResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_package o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<select id="listProductPackageByCondition" resultMap="productPackageResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_package o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<insert id="add" parameterType="productPackage">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO product_package
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_PRODUCT_ID,
+		C_GROSS_WEIGHT,
+		C_HEIGHT,
+		C_LENGTH,
+		C_LOTS,
+		C_MEASURE_ID,
+		C_PACKING_QUANTITY,
+		C_WIDTH
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{productId},
+		#{grossWeight},
+		#{height},
+		#{length},
+		#{lots},
+		#{measureId},
+		#{packingQuantity},
+		#{width}
+		)
+	</insert>
+
+	<update id="update" parameterType="productPackage" >
+		UPDATE product_package SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_PRODUCT_ID = #{productId},
+		C_GROSS_WEIGHT = #{grossWeight},
+		C_HEIGHT = #{height},
+		C_LENGTH = #{length},
+		C_LOTS = #{lots},
+		C_MEASURE_ID = #{measureId},
+		C_PACKING_QUANTITY = #{packingQuantity},
+		C_WIDTH = #{width}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM product_package 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<delete id="delByProductId">
+		DELETE FROM product_package 
+		WHERE C_PRODUCT_ID = #{productId}
+	</delete>
+
+</mapper>

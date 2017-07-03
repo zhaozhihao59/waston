@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IProductCategoryAttributeValueDao">
+	<resultMap type="productCategoryAttributeValue" id="productCategoryAttributeValueResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--产品线属性值编号 -->
+		<result property="attrValId" column="C_ATTR_VAL_ID" />
+		<!--发布类目属性编号 -->
+		<result property="catePubAttrId" column="C_CATE_PUB_ATTR_ID" />
+		<!--属性ID -->
+		<result property="catePubAttrvalId" column="C_CATE_PUB_ATTRVAL_ID" />
+		<!--属性值英文 -->
+		<result property="lineAttrvalName" column="C_LINE_ATTRVAL_NAME" />
+		<!--属性值中文 -->
+		<result property="lineAttrvalNameCn" column="C_LINE_ATTRVAL_NAME_CN" />
+		<!--属性值图片链接 -->
+		<result property="picUrl" column="C_PIC_URL" />
+		<!--排序值 -->
+		<result property="sortval" column="C_SORTVAL" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_ATTR_VAL_ID,
+		o.C_CATE_PUB_ATTR_ID,
+		o.C_CATE_PUB_ATTRVAL_ID,
+		o.C_LINE_ATTRVAL_NAME,
+		o.C_LINE_ATTRVAL_NAME_CN,
+		o.C_PIC_URL,
+		o.C_SORTVAL
+	</sql>
+	
+	<!-- 	根据属性值英文，属性值中文，属性值图片链接进行模糊查询 -->
+	<sql id="searchConditionSql">
+		<if test="condition.lineAttrvalName != null and condition.lineAttrvalName != ''">
+			AND o.C_LINE_ATTRVAL_NAME like '%${condition.lineAttrvalName}%' 
+		</if>
+		<if test="condition.lineAttrvalNameCn != null and condition.lineAttrvalNameCn != ''">
+			AND o.C_LINE_ATTRVAL_NAME_CN like '%${condition.lineAttrvalNameCn}%' 
+		</if>
+		<if test="condition.picUrl != null and condition.picUrl != ''">
+			AND o.C_PIC_URL like '%${condition.picUrl}%' 
+		</if>
+		<if test="condition.catePubAttrvalId != null and condition.catePubAttrvalId != ''">
+			AND o.C_CATE_PUB_ATTRVAL_ID like '%${condition.catePubAttrvalId}%' 
+		</if>
+		<if test="condition.catePubAttrId != null and condition.catePubAttrId != ''">
+			AND o.C_CATE_PUB_ATTR_ID like '%${condition.catePubAttrId}%' 
+		</if>
+	</sql>
+
+
+	<!-- 	查询所有 -->
+	<select id="listProductCategoryAttributeValueByPage" resultMap="productCategoryAttributeValueResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_category_attribute_value o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	
+	<!-- 	查询数量 -->
+	<select id="listProductCategoryAttributeValueByPageCount" resultType="int">
+		SELECT count(1) FROM product_category_attribute_value o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<!-- 	根据id查询 -->
+	<select id="getProductCategoryAttributeValueById" resultMap="productCategoryAttributeValueResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_category_attribute_value o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<!-- 	根据多个id查询 -->
+	<select id="listProductCategoryAttributeValueByIds" resultMap="productCategoryAttributeValueResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_category_attribute_value o
+		WHERE o.ID in
+		<foreach collection="skuAttrvals" index="index" item="item" open="(" separator="," close=")">
+			#{item.attrValId}
+		</foreach>
+	</select>
+	
+	<!-- 	根据属性id查询 -->
+	<select id="listProductCategoryAttributeValueByCatePubAttrId" resultMap="productCategoryAttributeValueResultMap">
+	SELECT <include refid="allColumnSql"/>
+	FROM product_category_attribute_value o
+	WHERE o.C_CATE_PUB_ATTR_ID = #{catePubAttrId}
+	limit 10 
+	</select>
+	
+	<!-- 	插入数据 -->
+	<insert id="add" parameterType="productCategoryAttributeValue">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO product_category_attribute_value
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_ATTR_VAL_ID,
+		C_CATE_PUB_ATTR_ID,
+		C_CATE_PUB_ATTRVAL_ID,
+		C_LINE_ATTRVAL_NAME,
+		C_LINE_ATTRVAL_NAME_CN,
+		C_PIC_URL,
+		C_SORTVAL
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{attrValId},
+		#{catePubAttrId},
+		#{catePubAttrvalId},
+		#{lineAttrvalName},
+		#{lineAttrvalNameCn},
+		#{picUrl},
+		#{sortval}
+		)
+	</insert>
+	
+	<!-- 	根据id修改数据 -->
+	<update id="update" parameterType="productCategoryAttributeValue" >
+		UPDATE product_category_attribute_value SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_ATTR_VAL_ID = #{attrValId},
+		C_CATE_PUB_ATTR_ID = #{catePubAttrId},
+		C_CATE_PUB_ATTRVAL_ID = #{catePubAttrvalId},
+		C_LINE_ATTRVAL_NAME = #{lineAttrvalName},
+		C_LINE_ATTRVAL_NAME_CN = #{lineAttrvalNameCn},
+		C_PIC_URL = #{picUrl},
+		C_SORTVAL = #{sortval}
+		WHERE ID = #{id}
+	</update>
+	<!-- 批量删除 -->
+	<delete id="delByIds">
+		DELETE FROM product_category_attribute_value 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+		<!-- 根据发布类目属性编号删除相应的属性值 -->
+	<delete id="delByCatePubAttrId">
+		DELETE FROM product_category_attribute_value 
+		WHERE C_CATE_PUB_ATTR_ID = #{catePubAttrId}
+	</delete>
+</mapper>

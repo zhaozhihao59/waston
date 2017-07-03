@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.order.dao.IOrderSellItemDao">
+	<resultMap type="orderSellItem" id="orderSellItemResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记位：0-未删除；1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--订单ID -->
+		<result property="orderId" column="C_ORDER_ID" />
+		<!--产品ID -->
+		<result property="productId" column="C_PRODUCT_ID" />
+		<!--产品SKU的ID -->
+		<result property="productSkuId" column="C_PRODUCT_SKU_ID" />
+		<!--产品名称 -->
+		<result property="productName" column="C_PRODUCT_NAME" />
+		<!--产品名称 (英文)-->
+		<result property="productNameEn" column="C_PRODUCT_NAME_EN" />
+		<!--产品图片 -->
+		<result property="productPhoto" column="C_PRODUCT_PHOTO" />
+		<!--产品单价 -->
+		<result property="unitPrice" column="C_UNIT_PRICE" />
+		<!-- 汇率转换后的产品单价产品单价 -->
+		<result property="exchangeRateUnitPrice" column="C_EXCHANGE_RATE_UNIT_PRICE" />
+		<!--订购数量 -->
+		<result property="num" column="C_NUM" />
+		<!--产品销量 -->
+		<result property="sales" column="sales" />
+		
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_ORDER_ID,
+		o.C_PRODUCT_ID,
+		o.C_PRODUCT_SKU_ID,
+		o.C_PRODUCT_NAME,
+		o.C_PRODUCT_NAME_EN,
+		o.C_PRODUCT_PHOTO,
+		o.C_UNIT_PRICE,
+		o.C_EXCHANGE_RATE_UNIT_PRICE,
+		o.C_NUM
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.orderId != null and condition.orderId != ''">
+			AND o.C_ORDER_ID like '%${condition.orderId}%' 
+		</if>
+		<if test="condition.productId != null and condition.productId != ''">
+			AND o.C_PRODUCT_ID like '%${condition.productId}%' 
+		</if>
+		<if test="condition.productSkuId != null and condition.productSkuId != ''">
+			AND o.C_PRODUCT_SKU_ID like '%${condition.productSkuId}%' 
+		</if>
+		<if test="condition.productName != null and condition.productName != ''">
+			AND o.C_PRODUCT_NAME like '%${condition.productName}%' 
+		</if>
+		<if test="condition.productPhoto != null and condition.productPhoto != ''">
+			AND o.C_PRODUCT_PHOTO like '%${condition.productPhoto}%' 
+		</if>
+	</sql>
+
+	<select id="listOrderSellItemByPage" resultMap="orderSellItemResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_sell_item o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listOrderSellItemByPageCount" resultType="int">
+		SELECT count(1) FROM order_sell_item o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getProductOrderNum" resultType="int">
+		SELECT ifnull(sum(o.C_NUM),0) FROM order_sell_item o
+		WHERE o.C_PRODUCT_ID = #{productId}
+	</select>
+
+	<select id="getOrderSellItemById" resultMap="orderSellItemResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_sell_item o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<select id="listOrderSellItemByOrderId" resultMap="orderSellItemResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_sell_item o
+		WHERE o.C_ORDER_ID = #{orderId}
+	</select>
+	
+	<select id="listBySales" resultMap="orderSellItemResultMap">
+		SELECT <include refid="allColumnSql"/> , SUM(o.C_NUM) sales
+		FROM order_sell_item o
+		GROUP BY o.C_PRODUCT_ID
+		ORDER BY sales desc limit 10
+	</select>
+
+	<insert id="add" parameterType="orderSellItem">
+		INSERT INTO order_sell_item
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_ORDER_ID,
+		C_PRODUCT_ID,
+		C_PRODUCT_SKU_ID,
+		C_PRODUCT_NAME,
+		C_PRODUCT_NAME_En,
+		C_PRODUCT_PHOTO,
+		C_UNIT_PRICE,
+		C_EXCHANGE_RATE_UNIT_PRICE,
+		C_NUM
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{orderId},
+		#{productId},
+		#{productSkuId},
+		#{productName},
+		#{productNameEn},
+		#{productPhoto},
+		#{unitPrice},
+		#{exchangeRateUnitPrice},
+		#{num}
+		)
+	</insert>
+
+	<update id="update" parameterType="orderSellItem" >
+		UPDATE order_sell_item SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_ORDER_ID = #{orderId},
+		C_PRODUCT_ID = #{productId},
+		C_PRODUCT_SKU_ID = #{productSkuId},
+		C_PRODUCT_NAME = #{productName},
+		C_PRODUCT_NAME_EN = #{productNameEn},
+		C_PRODUCT_PHOTO = #{productPhoto},
+		C_UNIT_PRICE = #{unitPrice},
+		C_NUM = #{num},
+		C_EXCHANGE_RATE_UNIT_PRICE = #{exchangeRateUnitPrice}
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="updatePrice" parameterType="orderSellItem">
+		UPDATE order_sell_item SET
+		C_UNIT_PRICE = #{unitPrice},
+		C_EXCHANGE_RATE_UNIT_PRICE = #{exchangeRateUnitPrice}
+		WHERE ID = #{id}
+	</update>
+	
+	<delete id="delByOrderId">
+		DELETE FROM order_sell_item 
+		WHERE C_ORDER_ID = #{orderId}
+	</delete>
+	
+	<delete id="delByIds">
+		DELETE FROM order_sell_item 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.auth.dao.IRoleDao">
+	<resultMap type="role" id="roleResultMap" extends="BaseBusEntity.entity">
+		<result column="C_NAME" property="name" />
+		<result column="C_ROLE_TYPE" property="roleType" />
+		<result column="C_REMARK" property="remark"/>
+	</resultMap>
+	
+	<sql id="allColumnSql">
+		<![CDATA[
+			r.ID,r.C_NAME,r.C_ROLE_TYPE,r.C_REMARK
+		]]>
+	</sql>
+	
+	<!-- 查询所有角色 -->
+	<select id="getAllEnableRoles" resultMap="roleResultMap">
+		select 
+		<include refid="allColumnSql"/>
+		from auth_role r where r.C_DELETE_FLAG = 0
+	</select>
+	
+	<select id="getById" parameterType="java.lang.String" resultMap="roleResultMap">
+		select 
+		<include refid="allColumnSql"/>
+		from auth_role r where r.id = #{id}
+	</select>
+	
+	<select id="getAllEnableRolesByIds" resultMap="roleResultMap" parameterType="string">
+		select 
+		<include refid="allColumnSql"/>
+		from auth_role r where r.C_DELETE_FLAG = 0 and r.id = #{roleIds}
+	</select>
+	
+	<select id="queryForList" parameterType="list" resultMap="roleResultMap" >
+		select 
+		<include refid="allColumnSql"/>
+		from auth_role r where r.C_DELETE_FLAG = 0 and r.id not in
+		<foreach collection="list" item="id" open="(" close=")"
+			separator=",">
+			#{id}
+		</foreach>
+	</select>
+	
+	<select id="queryForInList" parameterType="list" resultMap="roleResultMap" >
+		select 
+		<include refid="allColumnSql"/>
+		from auth_role r where r.C_DELETE_FLAG = 0 and r.id in
+		<foreach collection="list" item="id" open="(" close=")"
+			separator=",">
+			#{id}
+		</foreach>
+	</select>
+	
+	<!-- 根据用户id获得用户的角色列表 -->
+	<select id="getRoleByUserId" parameterType="string" resultMap="roleResultMap">
+		SELECT
+		<include refid="allColumnSql"/>
+		FROM auth_role r LEFT OUTER JOIN auth_user_roles ur
+		ON r.ID = ur.C_ROLE_ID WHERE ur.C_USER_ID=#{userId}
+	</select>
+	
+	<!-- 根据用户id获得用户的角色列表 -->
+	<select id="getbooleanByUserIdAndRoleId" parameterType="string" resultMap="roleResultMap">
+		SELECT
+		<include refid="allColumnSql"/>
+		FROM auth_role r 
+		LEFT OUTER JOIN auth_user_roles ur ON r.ID = ur.C_ROLE_ID 
+		WHERE ur.C_USER_ID=#{userId} AND ur.C_ROLE_ID = #{roleId} 
+	</select>
+	
+	<!-- 分页 -->
+	<select id="getRoleListByPage" resultMap="roleResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		from auth_role r
+		WHERE r.C_DELETE_FLAG = 0 
+		ORDER BY r.C_CREATE_DATE DESC
+	</select>
+	
+	<!-- 总行数 -->
+	<select id="getRoleListByPageCount" resultType="int">
+		SELECT 
+		COUNT(1)
+		from auth_role r
+		WHERE r.C_DELETE_FLAG = 0 
+	</select>
+	
+	<select id="getRoleByName" resultMap="roleResultMap" parameterType="string">
+		SELECT 
+		<include refid="allColumnSql"/>
+		FROM auth_role r WHERE r.C_DELETE_FLAG = 0 AND r.C_NAME = #{name}
+	</select>
+	
+	<select id="getRoleAnotherByName" resultMap="roleResultMap" parameterType="string">
+		SELECT
+		<include refid="allColumnSql"/>
+		FROM auth_role r WHERE r.C_DELETE_FLAG = 0 AND r.C_NAME = #{name} AND r.id != #{id}
+	</select>
+	
+	<!-- 新增 -->
+	<insert id="addRole" parameterType="role">
+		<selectKey keyProperty="id" order="BEFORE" resultType="java.lang.String">
+			select SYS_GUID()
+		</selectKey>
+		INSERT INTO auth_role (ID,C_NAME,C_ROLE_TYPE,C_REMARK,C_DELETE_FLAG,C_CREATE_DATE)
+		values(#{id},#{name},#{roleType},#{remark},0,SYSDATE())
+	</insert>
+		
+	<!-- 修改 -->
+	<update id="updateRole" parameterType="role">
+		UPDATE auth_role SET
+		C_NAME = #{name},
+		C_REMARK = #{remark}
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="delRoleById">
+		UPDATE auth_role SET C_DELETE_FLAG = 1 WHERE ID = #{id}
+	</update>
+	<insert id="addRoleRights">
+		INSERT INTO auth_role_right (C_ROLE_ID,C_RIGHT_ID) values
+		<foreach collection="rightIds" item="item" open="" close=""
+			separator=",">
+			(#{roleId}, #{item})
+		</foreach>
+	</insert>
+	
+	<delete id="delRoleRightByRoleId">
+		DELETE FROM auth_role_right WHERE C_ROLE_ID = #{roleId}
+	</delete>
+</mapper>

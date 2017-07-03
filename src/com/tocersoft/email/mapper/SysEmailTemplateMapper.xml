@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.email.dao.SysEmailTemplateDao">
+	<resultMap type="sysEmailTemplate" id="sysEmailTemplateMap"
+		extends="BaseBusEntity.entity">
+		<result property="content" column="CONTENT" />
+		<result property="type" column="MTYPE" />
+	</resultMap>
+	
+	<select id="getTemplates" resultMap="sysEmailTemplateMap">
+		select * from sys_email_template
+	</select>
+	
+	<select id="getTemplate" resultMap="sysEmailTemplateMap">
+		select * from sys_email_template where MTYPE = #{type}
+	</select>
+	
+	<select id="getTemplateById" resultMap="sysEmailTemplateMap">
+		select * from sys_email_template where id = #{id}
+	</select>
+	
+	<update id="updateTemplate" parameterType="sysEmailTemplate">
+		update sys_email_template set CONTENT = #{content},MTYPE = #{type} where id = #{id}
+	</update>
+	
+</mapper>

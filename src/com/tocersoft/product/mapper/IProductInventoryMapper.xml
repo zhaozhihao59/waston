@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IProductInventoryDao">
+	<resultMap type="productInventory" id="productInventoryResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--对应的产品ID -->
+		<result property="productId" column="C_PRODUCT_ID" />
+		<!--备货地 -->
+		<result property="inventoryLocation" column="C_INVENTORY_LOCATION" />
+		<!--原备货量 -->
+		<result property="inventoryOriQty" column="C_INVENTORY_ORI_QTY" />
+		<!--备货数量 -->
+		<result property="inventoryQty" column="C_INVENTORY_QTY" />
+		<!--是否有备货：0否，1是 -->
+		<result property="inventoryStatus" column="C_INVENTORY_STATUS" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_PRODUCT_ID,
+		o.C_INVENTORY_LOCATION,
+		o.C_INVENTORY_ORI_QTY,
+		o.C_INVENTORY_QTY,
+		o.C_INVENTORY_STATUS
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.productId != null and condition.productId != ''">
+			AND o.C_PRODUCT_ID like '%${condition.productId}%' 
+		</if>
+		<if test="condition.inventoryLocation != null and condition.inventoryLocation != ''">
+			AND o.C_INVENTORY_LOCATION like '%${condition.inventoryLocation}%' 
+		</if>
+
+	</sql>
+
+	<select id="listProductInventoryByPage" resultMap="productInventoryResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_inventory o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listProductInventoryByPageCount" resultType="int">
+		SELECT count(1) FROM product_inventory o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getProductInventoryById" resultMap="productInventoryResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_inventory o
+		WHERE o.ID = #{id}
+	</select>
+
+	<insert id="add" parameterType="productInventory">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO product_inventory
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_PRODUCT_ID,
+		C_INVENTORY_LOCATION,
+		C_INVENTORY_ORI_QTY,
+		C_INVENTORY_QTY,
+		C_INVENTORY_STATUS
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{productId},
+		#{inventoryLocation},
+		#{inventoryOriQty},
+		#{inventoryQty},
+		#{inventoryStatus}
+		)
+	</insert>
+
+	<update id="update" parameterType="productInventory" >
+		UPDATE product_inventory SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_PRODUCT_ID = #{productId},
+		C_INVENTORY_LOCATION = #{inventoryLocation},
+		C_INVENTORY_ORI_QTY = #{inventoryOriQty},
+		C_INVENTORY_QTY = #{inventoryQty},
+		C_INVENTORY_STATUS = #{inventoryStatus}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM product_inventory 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+	<delete id="delByProductId">
+		DELETE FROM product_inventory 
+		WHERE C_PRODUCT_ID = #{productId}
+	</delete>
+	
+</mapper>

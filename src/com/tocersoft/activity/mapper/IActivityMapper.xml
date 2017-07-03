@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.activity.dao.IActivityDao">
+	<resultMap type="activity" id="activityResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记位：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--会议标题 -->
+		<result property="title" column="C_TITLE" />
+		<!--会议标题【英文】 -->
+		<result property="titleEn" column="C_TITLE_EN" />
+		<!--会议标题 【日文】-->
+		<result property="titleJp" column="C_TITLE_JP" />
+		<!--会议图片 -->
+		<result property="photo" column="C_PHOTO" />
+		<!--会议简介 -->
+		<result property="desc" column="C_DESC" />
+		<!--会议简介 【英文】-->
+		<result property="descEn" column="C_DESC_EN" />
+		<!--会议简介 【日文】-->
+		<result property="descJp" column="C_DESC_JP" />
+		<!--会议时间(字符串输入) -->
+		<result property="dateStr" column="C_DATE_STR" />
+		<result property="dateStrEn" column="C_DATE_STR_EN" />
+		<result property="dateStrJp" column="C_DATE_STR_JP" />
+		<!--活动地址 -->
+		<result property="address" column="C_ADDRESS" />
+		<!--活动地址 【英文】-->
+		<result property="addressEn" column="C_ADDRESS_EN" />
+		<!--活动地址【日文】-->
+		<result property="addressJp" column="C_ADDRESS_JP" />
+		<!--活动状态1预告2正在报名3历届-->
+		<result property="state" column="C_STATE" />
+		<!--活动推荐：0-未推荐，1-已推荐 -->
+		<result property="isRecommend" column="C_IS_RECOMMEND" />
+		<!--排序 -->
+		<result property="sort" column="C_SORT" />
+		<!-- 摘要 -->
+		<result property="prom" column="C_PROM" />
+		<!-- 摘要【英文】 -->
+		<result property="promEn" column="C_PROM_EN" />
+		<!-- 摘要【日文】-->
+		<result property="promJp" column="C_PROM_JP" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_TITLE,
+		o.C_PHOTO,
+		o.C_DESC,
+		o.C_DATE_STR,
+		o.C_DATE_STR_EN,
+		o.C_DATE_STR_JP,
+		o.C_ADDRESS,
+		o.C_STATE,
+		o.C_IS_RECOMMEND,
+		o.C_SORT,
+		o.C_PROM,
+		o.C_TITLE_EN,
+		o.C_TITLE_JP,
+		o.C_DESC_EN,
+		o.C_DESC_JP,
+		o.C_ADDRESS_EN,
+		o.C_ADDRESS_JP,
+		o.C_PROM_EN,
+		o.C_PROM_JP
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.key != null and condition.key != ''">
+			AND ( o.C_TITLE like '%${condition.key}%' or
+				o.C_ADDRESS like '%${condition.key}%' )
+		</if>
+		<if test="condition.title != null and condition.title != ''">
+			AND o.C_TITLE like '%${condition.title}%' 
+		</if>
+		<if test="condition.photo != null and condition.photo != ''">
+			AND o.C_PHOTO like '%${condition.photo}%' 
+		</if>
+		<if test="condition.desc != null and condition.desc != ''">
+			AND o.C_DESC like '%${condition.desc}%' 
+		</if>
+		<if test="condition.dateStr != null and condition.dateStr != ''">
+			AND o.C_DATE_STR like '%${condition.dateStr}%' 
+		</if>
+		<if test="condition.address != null and condition.address != ''">
+			AND o.C_ADDRESS like '%${condition.address}%' 
+		</if>
+		<if test=" condition.state != null">
+		 	<![CDATA[
+		 	 and o.C_STATE =#{condition.state}
+		 	]]>
+		 </if>
+		 <if test="condition.type != null">
+			AND o.C_STATE = #{condition.type}
+		</if>
+	</sql>
+	
+	<select id="listActivityByPage" resultMap="activityResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM activity o
+		WHERE 1=1 <include refid="searchConditionSql"/>
+		ORDER BY o.C_SORT, o.C_CREATE_DATE DESC
+	</select>
+	
+	<select id="listActivityByPageCount" resultType="int">
+		SELECT count(1) FROM activity o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	
+	<select id="listActivityByPageByOld" resultMap="activityResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM activity o
+		WHERE 1=1
+		and o.C_STATE not in (1,2)
+		 <include refid="searchConditionSql"/> 
+		 ORDER BY  o.C_CREATE_DATE DESC
+	</select>
+	<select id="listActivityByPageCountByOld" resultType="int">
+		SELECT count(1) FROM activity o
+		WHERE 1=1 
+		and o.C_STATE not in (1,2)
+		 <include refid="searchConditionSql"/> 
+	</select>
+	
+	
+	<select id="getActivityById" resultMap="activityResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM activity o
+		WHERE o.ID = #{id}
+	</select>
+
+	<insert id="add" parameterType="activity">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO activity
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_TITLE,
+		C_TITLE_EN,
+		C_TITLE_JP,
+		C_PHOTO,
+		C_DESC,
+		C_DESC_EN,
+		C_DESC_JP,
+		C_DATE_STR,
+		C_DATE_STR_EN,
+		C_DATE_STR_JP,
+		C_ADDRESS,
+		C_ADDRESS_EN,
+		C_ADDRESS_JP,
+		C_STATE,
+		C_IS_RECOMMEND,
+		C_SORT,
+		C_PROM,
+		C_PROM_EN,
+		C_PROM_JP
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{title},
+		#{titleEn},
+		#{titleJp},
+		#{photo},
+		#{desc},
+		#{descEn},
+		#{descJp},
+		#{dateStr},
+		#{dateStrEn},
+		#{dateStrJp},
+		#{address},
+		#{addressEn},
+		#{addressJp},
+		#{state},
+		1,
+		#{sort},
+		#{prom},
+		#{promEn},
+		#{promJp}
+		)
+	</insert>
+
+	<update id="update" parameterType="activity" >
+		UPDATE activity SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_TITLE = #{title},
+		C_TITLE_EN = #{titleEn},
+		C_TITLE_JP = #{titleJp},
+		C_PHOTO = #{photo},
+		C_DESC = #{desc},
+		C_DESC_EN = #{descEn},
+		C_DESC_JP = #{descJp},
+		C_DATE_STR = #{dateStr},
+		C_DATE_STR_EN = #{dateStrEn},
+		C_DATE_STR_JP = #{dateStrJp},
+		C_ADDRESS = #{address},
+		C_ADDRESS_EN = #{addressEn},
+		C_ADDRESS_JP = #{addressJp},
+		C_STATE = #{state},
+		C_IS_RECOMMEND = #{isRecommend},
+		C_SORT = #{sort},
+		C_PROM = #{prom},
+		C_PROM_EN = #{promEn},
+		C_PROM_JP = #{promJp}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM activity 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	<select id="listActivity" resultMap="activityResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM activity o
+		WHERE o.C_STATE =#{state}
+		ORDER BY o.C_SORT, o.C_CREATE_DATE DESC
+	</select>
+
+</mapper>

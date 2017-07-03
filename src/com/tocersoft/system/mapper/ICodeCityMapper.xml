@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.system.dao.ICodeCityDao">
+	<resultMap type="codeCity" id="cityResultMap">
+		<result column="idx" property="idx" />
+		<result column="city" property="city"/>
+	</resultMap>
+	
+	<sql id="allColumnSql">
+		<![CDATA[
+			c.gugunIdx as idx,
+			c.gugun as city
+		]]>
+	</sql>
+	
+	<!-- 根据省份ID查询得到该省份所有城市 -->
+	<select id="ListCitiesByPid" resultMap="cityResultMap">
+		SELECT distinct 
+		<include refid="allColumnSql"/> 
+		FROM code_address c 
+		WHERE c.sidoIdx = #{pid}
+	</select>
+	
+	<!-- 根据ID查询省份 -->
+	<select id="getCityByCode" resultMap="cityResultMap">
+		SELECT distinct 
+		<include refid="allColumnSql"/> 
+		FROM code_address c 
+		WHERE c.gugunIdx = #{cid}
+	</select>
+	
+</mapper>

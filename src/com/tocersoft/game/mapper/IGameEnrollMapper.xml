@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.game.dao.IGameEnrollDao">
+	<resultMap type="gameEnroll" id="gameEnrollResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--赛事ID -->
+		<result property="gameItemId" column="C_GAME_ITEM_ID" />
+		<!--报名类型：0-个人；1-团队 -->
+		<result property="enrollType" column="C_ENROLL_TYPE" />
+		<!--团队报名ID -->
+		<result property="enrollTeamId" column="C_ENROLL_TEAM_ID" />
+		<!--会员ID -->
+		<result property="memberId" column="C_MEMBER_ID" />
+		<!--所属车队 -->
+		<result property="teamId" column="C_TEAM_ID" />
+		<!--参赛号 -->
+		<result property="enrollNo" column="C_ENROLL_NO" />
+		<!--参赛运动员姓名 -->
+		<result property="memberName" column="C_MEMBER_NAME" />
+		<!--参赛运动员手机号码 -->
+		<result property="memberPhone" column="C_MEMBER_PHONE" />
+		<!--参赛运动员邮箱 -->
+		<result property="memberEmail" column="C_MEMBER_EMAIL" />
+		<!--参赛运动员国籍（数据字典项） -->
+		<result property="memberNation" column="C_MEMBER_NATION" />
+		<!--紧急联系人 -->
+		<result property="memberLinkName" column="C_MEMBER_LINK_NAME" />
+		<!--紧急联系人联系电话 -->
+		<result property="memberLinkPhone" column="C_MEMBER_LINK_PHONE" />
+		<!--紧急联系人关系（数据字典项） -->
+		<result property="memberLinkRelation" column="C_MEMBER_LINK_RELATION" />
+		<!--参赛运动员健康注意事项 -->
+		<result property="memberHealth" column="C_MEMBER_HEALTH" />
+		<!--参赛运动员血型（数据字典项） -->
+		<result property="memberBloodType" column="C_MEMBER_BLOOD_TYPE" />
+		<!--是否当地人：0-否，1-是 -->
+		<result property="isLocal" column="C_IS_LOCAL" />
+		<!--选择套餐 -->
+		<result property="setMeal" column="C_SET_MEAL" />
+		<!--选择交通 -->
+		<result property="vehicle" column="C_VEHICLE" />
+		<!--选择住宿 -->
+		<result property="lodge" column="C_LODGE" />
+		<!--选择保险 -->
+		<result property="insure" column="C_INSURE" />
+		<!--报名费 -->
+		<result property="enrollFee" column="C_ENROLL_FEE" />
+		<!--报名费 - 已付款 -->
+		<result property="enrollFeePaid" column="C_ENROLL_FEE_PAID" />
+		<!--报名状态：0-未付款，1-已付款，2-已成功，3-已取消 -->
+		<result property="state" column="C_STATE" />
+		<!--备注 -->
+		<result property="remark" column="C_REMARK" />
+		<!--比赛成绩 -->
+		<result property="score" column="C_SCORE" />
+		<!--名次 -->
+		<result property="rank" column="C_RANK" />
+		
+		
+		<!--  *********  -->
+		<!--项目名称 -->
+		<result property="gameItemName" column="gameItemName" />
+		<!--所属车队名称 -->
+		<result property="teamName" column="teamName" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_GAME_ITEM_ID,
+		o.C_ENROLL_TYPE,
+		o.C_ENROLL_TEAM_ID,
+		o.C_MEMBER_ID,
+		o.C_TEAM_ID,
+		o.C_ENROLL_NO,
+		o.C_MEMBER_NAME,
+		o.C_MEMBER_PHONE,
+		o.C_MEMBER_EMAIL,
+		o.C_MEMBER_NATION,
+		o.C_MEMBER_LINK_NAME,
+		o.C_MEMBER_LINK_PHONE,
+		o.C_MEMBER_LINK_RELATION,
+		o.C_MEMBER_HEALTH,
+		o.C_MEMBER_BLOOD_TYPE,
+		o.C_IS_LOCAL,
+		o.C_SET_MEAL,
+		o.C_VEHICLE,
+		o.C_LODGE,
+		o.C_INSURE,
+		o.C_ENROLL_FEE,
+		o.C_ENROLL_FEE_PAID,
+		o.C_STATE,
+		o.C_REMARK,
+		o.C_SCORE,
+		o.C_RANK
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.gameItemId != null and condition.gameItemId != ''">
+			AND o.C_GAME_ITEM_ID = #{condition.gameItemId}
+		</if>
+		<if test="condition.memberId != null and condition.memberId != ''">
+			AND o.C_MEMBER_ID = #${condition.memberId}
+		</if>
+		<if test="condition.teamId != null and condition.teamId != ''">
+			AND o.C_TEAM_ID = #{condition.teamId} 
+		</if>
+		<if test="condition.enrollNo != null and condition.enrollNo != ''">
+			AND o.C_ENROLL_NO like '%${condition.enrollNo}%' 
+		</if>
+		<if test="condition.memberName != null and condition.memberName != ''">
+			AND o.C_MEMBER_NAME like '%${condition.memberName}%' 
+		</if>
+		<if test="condition.memberPhone != null and condition.memberPhone != ''">
+			AND o.C_MEMBER_PHONE like '%${condition.memberPhone}%' 
+		</if>
+		<if test="condition.remark != null and condition.remark != ''">
+			AND o.C_REMARK like '%${condition.remark}%' 
+		</if>
+		<if test="condition.score != null and condition.score != ''">
+			AND o.C_SCORE like '%${condition.score}%' 
+		</if>
+
+	</sql>
+
+	<select id="listGameEnrollByPage" resultMap="gameEnrollResultMap">
+		SELECT <include refid="allColumnSql"/>,o1.C_ITEM_NAME as gameItemName,o2.C_NAME as teamName
+		FROM game_enroll o
+		LEFT JOIN game_item o1 on o.C_GAME_ITEM_ID=o1.ID
+		LEFT JOIN mem_team o2 on o.C_TEAM_ID=o2.ID
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listGameEnrollByPageCount" resultType="int">
+		SELECT count(1) FROM game_enroll o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getGameEnrollById" resultMap="gameEnrollResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM game_enroll o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<!-- 根据会员ID车队ID查询，判断重复报名 -->
+	<select id="getGameEnrollByMemberIdAndGameItemId" resultMap="gameEnrollResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM game_enroll o
+		WHERE 	o.C_MEMBER_ID=#{memberId}
+		AND	o.C_GAME_ITEM_ID,=#{gameItemId}
+	</select>
+	
+
+	<insert id="add" parameterType="gameEnroll">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO game_enroll
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_GAME_ITEM_ID,
+		C_ENROLL_TYPE,
+		C_ENROLL_TEAM_ID,
+		C_MEMBER_ID,
+		C_TEAM_ID,
+		C_ENROLL_NO,
+		C_MEMBER_NAME,
+		C_MEMBER_PHONE,
+		C_MEMBER_EMAIL,
+		C_MEMBER_NATION,
+		C_MEMBER_LINK_NAME,
+		C_MEMBER_LINK_PHONE,
+		C_MEMBER_LINK_RELATION,
+		C_MEMBER_HEALTH,
+		C_MEMBER_BLOOD_TYPE,
+		C_IS_LOCAL,
+		C_SET_MEAL,
+		C_VEHICLE,
+		C_LODGE,
+		C_INSURE,
+		C_ENROLL_FEE,
+		C_ENROLL_FEE_PAID,
+		C_STATE,
+		C_REMARK,
+		C_SCORE,
+		C_RANK
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{gameItemId},
+		#{enrollType},
+		#{enrollTeamId},
+		#{memberId},
+		#{teamId},
+		generateOrderCode(),
+		#{memberName},
+		#{memberPhone},
+		#{memberEmail},
+		#{memberNation},
+		#{memberLinkName},
+		#{memberLinkPhone},
+		#{memberLinkRelation},
+		#{memberHealth},
+		#{memberBloodType},
+		#{isLocal},
+		#{setMeal},
+		#{vehicle},
+		#{lodge},
+		#{insure},
+		#{enrollFee},
+		#{enrollFeePaid},
+		#{state},
+		#{remark},
+		#{score},
+		#{rank}
+		)
+	</insert>
+
+	<update id="update" parameterType="gameEnroll" >
+		UPDATE game_enroll SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_GAME_ITEM_ID = #{gameItemId},
+		C_ENROLL_TYPE = #{enrollType},
+		C_ENROLL_TEAM_ID = #{enrollTeamId},
+		C_MEMBER_ID = #{memberId},
+		C_TEAM_ID = #{teamId},
+		C_ENROLL_NO = #{enrollNo},
+		C_MEMBER_NAME = #{memberName},
+		C_MEMBER_PHONE = #{memberPhone},
+		C_MEMBER_EMAIL = #{memberEmail},
+		C_MEMBER_NATION = #{memberNation},
+		C_MEMBER_LINK_NAME = #{memberLinkName},
+		C_MEMBER_LINK_PHONE = #{memberLinkPhone},
+		C_MEMBER_LINK_RELATION = #{memberLinkRelation},
+		C_MEMBER_HEALTH = #{memberHealth},
+		C_MEMBER_BLOOD_TYPE = #{memberBloodType},
+		C_IS_LOCAL = #{isLocal},
+		C_SET_MEAL = #{memberPhone},
+		C_VEHICLE = #{vehicle},
+		C_LODGE = #{lodge},
+		C_INSURE = #{insure},
+		C_ENROLL_FEE = #{enrollFee},
+		C_ENROLL_FEE_PAID = #{enrollFeePaid},
+		C_STATE = #{state},
+		C_REMARK = #{remark},
+		C_SCORE = #{score},
+		C_RANK = #{rank}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM game_enroll 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

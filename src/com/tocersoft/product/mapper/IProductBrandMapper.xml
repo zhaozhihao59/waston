@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IProductBrandDao">
+	<resultMap type="productBrand" id="productBrandResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除：0-不删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--品牌名称 - 中文 -->
+		<result property="name" column="C_NAME" />
+		<!--品牌名称 - 英文 -->
+		<result property="nameEn" column="C_NAME_EN" />
+		<!--品牌介绍 - 中文 -->
+		<result property="introduce" column="C_INTRODUCE" />
+		<!--品牌介绍 - 英文 -->
+		<result property="introduceEn" column="C_INTRODUCE_EN" />
+		<!--品牌图片路径 -->
+		<result property="imagePath" column="C_IMAGE_PATH" />
+		<!--品牌类型：数据字典项ID -->
+		<result property="brandTypeId" column="C_BRAND_TYPE_ID" />
+		<!--品牌排序 -->
+		<result property="sort" column="C_SORT"/>
+		<!-- 是否为明星品牌 -->
+		<result property="isStarBrand" column="C_IS_STARBRAND"/>
+		
+		<!--品牌类型名称 -->
+		<result property="brandTypeName" column="C_BRAND_TYPE_NAME" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_NAME,
+		o.C_NAME_EN,
+		o.C_INTRODUCE,
+		o.C_INTRODUCE_EN,
+		o.C_IMAGE_PATH,
+		o.C_BRAND_TYPE_ID,
+		o.C_SORT,
+		o.C_IS_STARBRAND
+	</sql>
+	
+	<sql id="allColumnSqlJoin">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_NAME,
+		o.C_NAME_EN,
+		o.C_INTRODUCE,
+		o.C_INTRODUCE_EN,
+		o.C_IMAGE_PATH,
+		o.C_BRAND_TYPE_ID,
+		o.C_SORT,
+		di.C_NAME AS C_BRAND_TYPE_NAME,
+		o.C_IS_STARBRAND
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.name != null and condition.name != ''">
+			AND o.C_NAME like '%${condition.name}%' 
+		</if>
+		<if test="condition.introduce != null and condition.introduce != ''">
+			AND o.C_INTRODUCE like '%${condition.introduce}%' 
+		</if>
+		<if test="condition.introduceEn != null and condition.introduceEn != ''">
+			AND o.C_INTRODUCE_EN like '%${condition.introduceEn}%' 
+		</if>
+		<if test="condition.isStarBrand != null">
+			AND o.C_IS_STARBRAND = #{condition.isStarBrand}
+		</if>
+	</sql>
+
+	<select id="listProductBrandByPage" resultMap="productBrandResultMap">
+		SELECT <include refid="allColumnSqlJoin"/>
+		FROM product_brand o 
+		LEFT JOIN sys_dict_item di ON o.C_BRAND_TYPE_ID = di.ID 
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+		ORDER BY o.C_SORT ASC, o.C_CREATE_DATE ASC 
+	</select>
+	<select id="listProductBrandByPageCount" resultType="int">
+		SELECT count(1) FROM product_brand o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getProductBrandById" resultMap="productBrandResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_brand o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<select id="listProductBrand" resultMap="productBrandResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_brand o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	
+	<select id="listProductBrandByBrandTypeId" resultMap="productBrandResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_brand o
+		WHERE o.C_BRAND_TYPE_ID = #{brandTypeId}
+	</select>
+
+	<insert id="add" parameterType="productBrand">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO product_brand
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_NAME,
+		C_NAME_EN,
+		C_INTRODUCE,
+		C_INTRODUCE_EN,
+		C_IMAGE_PATH,
+		C_BRAND_TYPE_ID,
+		C_SORT,
+		C_IS_STARBRAND
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{name},
+		#{nameEn},
+		#{introduce},
+		#{introduceEn},
+		#{imagePath},
+		#{brandTypeId},
+		#{sort},
+		#{isStarBrand}
+		)
+	</insert>
+
+	<update id="update" parameterType="productBrand" >
+		UPDATE product_brand SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_NAME = #{name},
+		C_NAME_EN = #{nameEn},
+		C_INTRODUCE = #{introduce},
+		C_INTRODUCE_EN = #{introduceEn},
+		C_IMAGE_PATH = #{imagePath},
+		C_BRAND_TYPE_ID = #{brandTypeId},
+		C_SORT=#{sort},
+		C_IS_STARBRAND = #{isStarBrand}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM product_brand 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

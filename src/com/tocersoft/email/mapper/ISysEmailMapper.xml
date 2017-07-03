@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.email.dao.ISysEmailDao">
+	<resultMap type="sysEmail" id="sysEmailMap"
+		extends="BaseBusEntity.entity">
+		<!-- 接收邮件地址 多个以分号分割 -->
+		<result property="email" column="EMAIL" />
+		<!-- 邮件内容 -->
+		<result property="content" column="CONTENT" />
+		<!-- 0 未发送 1 已发送 2 发送失败 -->
+		<result property="flag" column="FLAG" />
+		<!-- 备注 -->
+		<result property="remark" column="REMARK" />
+		<!-- 邮件标题 -->
+		<result property="title" column="TITLE" />
+		<!-- 计划发送时间 -->
+		<result property="planSendDate" column="SENT_TIME" />
+		<result property="type" column="MTYPE"/>
+	</resultMap>
+	
+	<insert id="add" parameterType="sysEmail">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO sys_email(ID,CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, DELETE_FLAG, 
+		EMAIL, CONTENT, FLAG, REMARK,TITLE,SENT_TIME,MTYPE) 
+		VALUES (#{id},SYSDATE(), #{createBy}, SYSDATE(), #{updateBy}, 0, 
+		#{email}, #{content}, #{flag}, #{remark},#{title},SYSDATE(),#{type})
+	</insert>
+	
+	<select id="listTenNoSendMail" resultMap="sysEmailMap">
+		select * from sys_email where FLAG = 0 and SENT_TIME &lt; SYSDATE()
+	</select>
+	
+	<update id="updateEmailState">
+		update sys_email set FLAG = 1 where id = #{id}
+	</update>
+	
+</mapper>

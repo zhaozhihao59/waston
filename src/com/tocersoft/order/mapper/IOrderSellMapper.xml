@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.order.dao.IOrderSellDao">
+	<resultMap type="orderSell" id="orderSellResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记位：0-未删除；1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--订单编号 -->
+		<result property="orderNo" column="C_ORDER_NO" />
+		<!--会员ID -->
+		<result property="memberId" column="C_MEMBER_ID" />
+		<!--订单备注 -->
+		<result property="remark" column="C_REMARK" />
+		<!--订单总金额 -->
+		<result property="amountTotal" column="C_AMOUNT_TOTAL" />
+		<!--汇率转换后的订单总金额 -->
+		<result property="exchangeRateAmountTotal" column="C_EXCHANGE_RATE_AMOUNT_TOTAL" />
+		<!--运费总额 -->
+		<result property="amountFreight" column="C_AMOUNT_FREIGHT" />
+		<!--汇率转换后的运费总额 -->
+		<result property="exchangeRateAmountFreight" column="C_EXCHANGE_RATE_AMOUNT_FREIGHT" />
+		<!--产品总额 -->
+		<result property="amountProduct" column="C_AMOUNT_PRODUCT" />
+		<!--汇率转换后的产品总额 -->
+		<result property="exchangeRateAmountProduct" column="C_EXCHANGE_RATE_AMOUNT_PRODUCT" />
+		<!-- 送货国家 -->
+		<result property="sendCountryCode" column="C_SEND_COUNTRY_CODE" />
+		<!-- 送货省份 -->
+		<result property="sendProvince" column="C_SEND_PROVINCE" />
+		<!-- 送货城市 -->
+		<result property="sendCity" column="C_SEND_CITY" />
+		<!--送货地址 -->
+		<result property="sendAddress" column="C_SEND_ADDRESS" />
+		<!-- 送货邮编 -->
+		<result property="sendPostCode" column="C_SEND_POST_CODE"/>
+		<!--送货联系人 -->
+		<result property="sendLinkman" column="C_SEND_LINKMAN" />
+		<!--送货联系电话 -->
+		<result property="sendContact" column="C_SEND_CONTACT" />
+		<!--订单状态：0-待受理，1-已受理，正在生产，2-已完成，准备发货，3-发货中，4-已完成 -->
+		<result property="orderState" column="C_ORDER_STATE" />
+		<!--物流公司 -->
+		<result property="freightCompany" column="C_FREIGHT_COMPANY" />
+		<!--运单号码 -->
+		<result property="freightBillNo" column="C_FREIGHT_BILL_NO" />
+		<!--发货时间 -->
+		<result property="freightDate" column="C_FREIGHT_DATE" />
+		<!-- 折扣代码 0:无折扣 1：已折扣 -->
+		<result property="discountCode" column="C_DISCOUNT_CODE"/>
+		<!-- 免运费代码 0:未免运费 1：已免运费 -->
+		<result property="freeShippingCode" column="C_FREE_SHIPPING_CODE"/>
+		<!-- 买家留言 -->
+		<result property="words" column="C_WORDS"/>
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_ORDER_NO,
+		o.C_MEMBER_ID,
+		o.C_REMARK,
+		o.C_AMOUNT_TOTAL,
+		o.C_EXCHANGE_RATE_AMOUNT_TOTAL,
+		o.C_AMOUNT_FREIGHT,
+		o.C_EXCHANGE_RATE_AMOUNT_FREIGHT,
+		o.C_AMOUNT_PRODUCT,
+		o.C_EXCHANGE_RATE_AMOUNT_PRODUCT,
+		o.C_SEND_COUNTRY_CODE,
+		o.C_SEND_PROVINCE,
+		o.C_SEND_CITY,
+		o.C_SEND_ADDRESS,
+		o.C_SEND_LINKMAN,
+		o.C_SEND_CONTACT,
+		C_SEND_POST_CODE,
+		o.C_ORDER_STATE,
+		o.C_FREIGHT_COMPANY,
+		o.C_FREIGHT_BILL_NO,
+		o.C_FREIGHT_DATE,
+		o.C_DISCOUNT_CODE,
+		o.C_FREE_SHIPPING_CODE,
+		o.C_WORDS
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.orderNo != null and condition.orderNo != ''">
+			AND o.C_ORDER_NO like '%${condition.orderNo}%' 
+		</if>
+		<if test="condition.memberId != null and condition.memberId != ''">
+			AND o.C_MEMBER_ID like '%${condition.memberId}%' 
+		</if>
+		<if test="condition.remark != null and condition.remark != ''">
+			AND o.C_REMARK like '%${condition.remark}%' 
+		</if>
+		<if test="condition.sendAddress != null and condition.sendAddress != ''">
+			AND o.C_SEND_ADDRESS like '%${condition.sendAddress}%' 
+		</if>
+		<if test="condition.sendLinkman != null and condition.sendLinkman != ''">
+			AND o.C_SEND_LINKMAN like '%${condition.sendLinkman}%' 
+		</if>
+		<if test="condition.sendContact != null and condition.sendContact != ''">
+			AND o.C_SEND_CONTACT like '%${condition.sendContact}%' 
+		</if>
+		<if test="condition.freightCompany != null and condition.freightCompany != ''">
+			AND o.C_FREIGHT_COMPANY like '%${condition.freightCompany}%' 
+		</if>
+		<if test="condition.freightBillNo != null and condition.freightBillNo != ''">
+			AND o.C_FREIGHT_BILL_NO like '%${condition.freightBillNo}%' 
+		</if>
+		<if test="condition.freightDate != null and condition.freightDate != ''">
+			AND o.C_FREIGHT_DATE like '%${condition.freightDate}%' 
+		</if>
+		<if test="condition.orderState != null">
+			AND o.C_ORDER_STATE = #{condition.orderState}
+		</if>
+		<if test="condition.orderState != null">
+			AND o.C_ORDER_STATE = #{condition.orderState}
+		</if>
+		<if test="condition.deleteFlag != null">
+			AND o.C_DELETE_FLAG = #{condition.deleteFlag}
+		</if>
+	</sql>
+
+	<select id="listOrderSellByPage" resultMap="orderSellResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_sell o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+		ORDER BY o.C_UPDATE_DATE DESC
+	</select>
+	<select id="listOrderSellByPageCount" resultType="int">
+		SELECT count(1) FROM order_sell o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getOrderSellById" resultMap="orderSellResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_sell o
+		WHERE o.C_DELETE_FLAG = 0 AND o.ID = #{id}
+		ORDER BY o.C_CREATE_DATE DESC
+	</select>
+	
+	<select id="listOrderSellByMemberId" resultMap="orderSellResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_sell o
+		WHERE o.C_DELETE_FLAG = 0 AND o.C_MEMBER_ID = #{memberId}
+		ORDER BY C_CREATE_DATE DESC
+	</select>
+	
+	<select id="getOrderSellByOrderNo" resultMap="orderSellResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_sell o
+		WHERE o.C_DELETE_FLAG = 0 AND o.C_ORDER_NO = #{orderNo}
+	</select>
+
+	<insert id="add" parameterType="orderSell">
+		INSERT INTO order_sell
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_ORDER_NO,
+		C_MEMBER_ID,
+		C_REMARK,
+		C_AMOUNT_TOTAL,
+		C_EXCHANGE_RATE_AMOUNT_TOTAL,
+		C_AMOUNT_FREIGHT,
+		C_EXCHANGE_RATE_AMOUNT_FREIGHT,
+		C_AMOUNT_PRODUCT,
+		C_EXCHANGE_RATE_AMOUNT_PRODUCT,
+		C_SEND_COUNTRY_CODE,
+		C_SEND_PROVINCE,
+		C_SEND_CITY,
+		C_SEND_ADDRESS,
+		C_SEND_POST_CODE,
+		C_SEND_LINKMAN,
+		C_SEND_CONTACT,
+		C_ORDER_STATE,
+		C_FREIGHT_COMPANY,
+		C_FREIGHT_BILL_NO,
+		C_FREIGHT_DATE,
+		C_DISCOUNT_CODE,
+		C_FREE_SHIPPING_CODE,
+		C_WORDS
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		generateOrderCode(),
+		#{memberId},
+		#{remark},
+		#{amountTotal},
+		#{exchangeRateAmountTotal},
+		#{amountFreight},
+		#{exchangeRateAmountFreight},
+		#{amountProduct},
+		#{exchangeRateAmountProduct},
+		#{sendCountryCode},
+		#{sendProvince},
+		#{sendCity},
+		#{sendAddress},
+		#{sendPostCode},
+		#{sendLinkman},
+		#{sendContact},
+		#{orderState},
+		#{freightCompany},
+		#{freightBillNo},
+		#{freightDate},
+		#{discountCode},
+		#{freeShippingCode},
+		#{words}
+		)
+	</insert>
+
+	<update id="update" parameterType="orderSell" >
+		UPDATE order_sell SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_ORDER_NO = #{orderNo},
+		C_MEMBER_ID = #{memberId},
+		C_REMARK = #{remark},
+		C_AMOUNT_TOTAL = #{amountTotal},
+		C_EXCHANGE_RATE_AMOUNT_TOTAL = #{exchangeRateAmountTotal},
+		C_AMOUNT_FREIGHT = #{amountFreight},
+		C_EXCHANGE_RATE_AMOUNT_FREIGHT = #{exchangeRateAmountFreight},
+		C_AMOUNT_PRODUCT = #{amountProduct},
+		C_EXCHANGE_RATE_AMOUNT_PRODUCT = #{exchangeRateAmountProduct},
+		C_SEND_COUNTRY_CODE = #{sendCountryCode},
+		C_SEND_PROVINCE = #{sendProvince},
+		C_SEND_CITY = #{sendCity},
+		C_SEND_ADDRESS = #{sendAddress},
+		C_SEND_LINKMAN = #{sendLinkman},
+		C_SEND_CONTACT = #{sendContact},
+		C_SEND_POST_CODE = #{sendPostCode},
+		C_ORDER_STATE = #{orderState},
+		C_FREIGHT_COMPANY = #{freightCompany},
+		C_FREIGHT_BILL_NO = #{freightBillNo},
+		C_FREIGHT_DATE = #{freightDate},
+		C_DELETE_FLAG = #{deleteFlag},
+		C_DISCOUNT_CODE = #{discountCode},
+		C_FREE_SHIPPING_CODE = #{freeShippingCode},
+		C_WORDS = #{words}
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="changeOrderState">
+		UPDATE order_sell SET
+		C_ORDER_STATE = #{orderState}
+		WHERE ID = #{orderSellId}
+	</update>
+	
+	<delete id="delByIds">
+		DELETE FROM order_sell 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

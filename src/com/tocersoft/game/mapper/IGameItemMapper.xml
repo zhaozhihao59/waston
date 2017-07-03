@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.game.dao.IGameItemDao">
+	<resultMap type="gameItem" id="gameItemResultMap">
+		<!--会员ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--赛事ID -->
+		<result property="gameId" column="C_GAME_ID" />
+		<!--赛事项目名称 -->
+		<result property="itemName" column="C_ITEM_NAME" />
+		<!--赛事项目状态：0-关闭，1-开启 -->
+		<result property="state" column="C_STATE" />
+		<!--赛事项目报名费 -->
+		<result property="enrollFee" column="C_ENROLL_FEE" />
+		<!--赛事项目报名费 - 团队 -->
+		<result property="enrollFeeTeam" column="C_ENROLL_FEE_TEAM" />
+		<!--赛事项目报名费 - 当地人 -->
+		<result property="enrollFeeLocal" column="C_ENROLL_FEE_LOCAL" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_GAME_ID,
+		o.C_ITEM_NAME,
+		o.C_STATE,
+		o.C_ENROLL_FEE,
+		o.C_ENROLL_FEE_TEAM,
+		o.C_ENROLL_FEE_LOCAL
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.itemName != null and condition.itemName != ''">
+			AND o.C_ITEM_NAME like '%${condition.itemName}%' 
+		</if>
+		<if test="condition.gameId != null and condition.gameId != ''">
+			AND o.C_GAME_ID = #{condition.gameId}
+		</if>
+
+	</sql>
+
+	<select id="listGameItemByPage" resultMap="gameItemResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM game_item o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listGameItemByPageCount" resultType="int">
+		SELECT count(1) FROM game_item o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="getGameItemByName" resultMap="gameItemResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM game_item o
+		LEFT JOIN game g on o.C_GAME_ID = o.ID
+		WHERE o.C_ITEM_NAME = #{itemName} and g.C_GAME_NAME=#{gameName}
+	</select>
+	<select id="getGameItemById" resultMap="gameItemResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM game_item o
+		WHERE o.ID = #{id}
+	</select>
+	<!-- 赛事项目列表 -->
+	<select id="listGameItem" resultMap="gameItemResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM game_item o
+		where o.C_DELETE_FLAG=0
+		<if test="gameId != null and gameId != ''">
+			and o.C_GAME_ID=#{gameId}
+		</if>
+		
+	</select>
+	<insert id="add" parameterType="gameItem">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO game_item
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_GAME_ID,
+		C_ITEM_NAME,
+		C_STATE,
+		C_ENROLL_FEE,
+		C_ENROLL_FEE_TEAM,
+		C_ENROLL_FEE_LOCAL
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{gameId},
+		#{itemName},
+		#{state},
+		#{enrollFee},
+		#{enrollFeeTeam},
+		#{enrollFeeLocal}
+		)
+	</insert>
+
+	<update id="update" parameterType="gameItem" >
+		UPDATE game_item SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_GAME_ID = #{gameId},
+		C_ITEM_NAME = #{itemName},
+		C_STATE = #{state},
+		C_ENROLL_FEE = #{enrollFee},
+		C_ENROLL_FEE_TEAM = #{enrollFeeTeam},
+		C_ENROLL_FEE_LOCAL = #{enrollFeeLocal}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM game_item 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

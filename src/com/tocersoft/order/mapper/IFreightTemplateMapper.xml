@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.order.dao.IFreightTemplateDao">
+	<resultMap type="freightTemplate" id="freightTemplateResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除：0-不删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--运费模板 -->
+		<result property="templateName" column="C_TEMPLATE_NAME" />
+		<!--运费模板备注 -->
+		<result property="templateNote" column="C_TEMPLATE_NOTE" />
+		<!-- 是否为默认运费模板：0-非默认，1-默认 -->
+		<result property="isDefault" column="C_IS_DEFAULT" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_TEMPLATE_NAME,
+		o.C_TEMPLATE_NOTE,
+		o.C_IS_DEFAULT
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.templateName != null and condition.templateName != ''">
+			AND o.C_TEMPLATE_NAME like concat('%',#{condition.templateName},'%') 
+		</if>
+		<if test="condition.templateNote != null and condition.templateNote != ''">
+			AND o.C_TEMPLATE_NOTE like concat('%',#{condition.templateNote},'%') 
+		</if>
+		<if test="condition.isDefault != null">
+			AND o.C_IS_DEFAULT = #{condition.isDefault}
+		</if>
+	</sql>
+
+	<select id="listFreightTemplateByPage" resultMap="freightTemplateResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_freight_template o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listFreightTemplateByPageCount" resultType="int">
+		SELECT count(1) FROM order_freight_template o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	
+	<select id="listFreightTemplateAll" resultMap="freightTemplateResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_freight_template o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getFreightTemplateById" resultMap="freightTemplateResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM order_freight_template o
+		WHERE o.ID = #{id}
+	</select>
+
+	<insert id="add" parameterType="freightTemplate">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO order_freight_template(ID,C_CREATE_BY,C_CREATE_DATE,C_UPDATE_BY,C_UPDATE_DATE,C_DELETE_FLAG,C_TEMPLATE_NAME,C_TEMPLATE_NOTE,C_IS_DEFAULT)
+		VALUES
+		(#{id},#{createBy},#{createDate},#{updateBy},#{updateDate},0,#{templateName},#{templateNote},#{isDefault})
+	</insert>
+
+	<update id="update" parameterType="freightTemplate" >
+		UPDATE order_freight_template SET
+		C_CREATE_BY = #{createBy},
+		C_CREATE_DATE = #{createDate},
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = #{updateDate},
+		C_DELETE_FLAG = #{deleteFlag},
+		C_TEMPLATE_NAME = #{templateName},
+		C_TEMPLATE_NOTE = #{templateNote}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM order_freight_template 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.member.dao.IMemTeamMemberDao">
+	<resultMap type="memTeamMember" id="memTeamMemberResultMap">
+		<!--会员ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--会员ID -->
+		<result property="memberId" column="C_MEMBER_ID" />
+		<!--团队ID -->
+		<result property="teamId" column="C_TEAM_ID" />
+		<!--0-普通队员；1-领队；2-教练；3-联系人 -->
+		<result property="type" column="C_TYPE" />
+		
+		<!-- 不持久化 -->
+		<!--姓名 -->
+		<result property="name" column="C_NAME" />
+		<!--手机号码 -->
+		<result property="mobile" column="C_MOBILE" />
+		<!--电子邮箱 -->
+		<result property="email" column="C_EMAIL" />
+		<!--身份证号 -->
+		<result property="idCardNo" column="C_ID_CARD_NO" />
+		<!--性别-->
+		<result property="sex" column="C_SEX" />
+	
+		<!-- 外键关联成实体-->
+		<!-- <association property="member" javaType="member" column="C_MEMBER_ID">
+			<id property="id" column="C_MEMBER_ID" />
+			<result property="name" column="C_PRODUCT_NAME" />
+			<result property="defaultPic" column="defaultPic" />
+			姓名
+			<result property="name" column="C_NAME" />
+			手机号码
+			<result property="mobile" column="C_MOBILE" />
+			电子邮箱
+			<result property="email" column="C_EMAIL" />
+			邮箱状态是否激活（1未激活2已激活）
+			<result property="emailactive" column="C_EMAILACTIVE" />
+			会员帐号
+			<result property="account" column="C_ACCOUNT" />
+			登录密码
+			<result property="password" column="C_PASSWORD" />
+			QQ
+			<result property="qq" column="C_QQ" />
+			微信号
+			<result property="wechat" column="C_WECHAT" />
+			地址
+			<result property="address" column="C_ADDRESS" />
+			行业
+			<result property="industry" column="C_INDUSTRY" />
+			性别：0-女；1-男
+			<result property="sex" column="C_SEX" />
+			个人简介
+			<result property="brief" column="C_BRIEF" />
+			描述
+			<result property="desc" column="C_DESC" />
+			省
+			 <result property="province" column="C_PROVINCE" />
+			省ID
+			<result property="provinceId" column="C_PROVINCE_ID" />
+			市
+			<result property="city" column="C_CITY" />
+			市ID
+			<result property="cityId" column="C_CITY_ID" />
+			县/区/镇
+			<result property="district" column="C_DISTRICT" />
+			县/区/镇ID
+			<result property="districtId" column="C_DISTRICT_ID" />
+			省市
+			<result property="provinceCity" column="C_PROVINCE_CITY" />
+			邮编
+			<result property="postCode" column="C_POST_CODE" />
+		</association> -->
+	</resultMap>
+	
+
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_MEMBER_ID,
+		o.C_TEAM_ID,
+		o.C_TYPE
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.memberId != null and condition.memberId != ''">
+			AND o.C_MEMBER_ID = #{condition.memberId}
+		</if>
+		<if test="condition.teamId != null and condition.teamId != ''">
+			AND o.C_TEAM_ID = #{condition.teamId} 
+		</if>
+
+	</sql>
+
+	<select id="listMemTeamMemberByPage" resultMap="memTeamMemberResultMap">
+		SELECT <include refid="allColumnSql"/>,o1.C_NAME,o1.C_MOBILE,o1.C_EMAIL,o1.C_SEX
+		FROM mem_team_member o
+		LEFT JOIN mem_member o1 on o.C_MEMBER_ID=o1.ID
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listMemTeamMemberByPageCount" resultType="int">
+		SELECT count(1) FROM mem_team_member o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getMemTeamMemberById" resultMap="memTeamMemberResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_team_member o
+		WHERE o.ID = #{id}
+	</select>
+	<select id="getMemTeamMemberByMemberIdAndTeamId" resultMap="memTeamMemberResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_team_member o
+		WHERE o.C_MEMBER_ID = #{memberId}
+		and o.C_TEAM_ID=#{teamId}
+	</select>
+	
+	<!-- 根据TeamID查询 -->
+	<select id="listMemTeamMemberByTeamId" resultMap="memTeamMemberResultMap">
+		SELECT o.ID,o.C_TYPE,o.C_MEMBER_ID,o1.C_NAME,o1.C_MOBILE,o1.C_ID_CARD_NO,o1.C_SEX
+		FROM mem_team_member o
+		left join mem_member o1 on o.C_MEMBER_ID=o1.ID
+		where o.C_TEAM_ID=#{teamId}
+	</select>
+
+	<insert id="add" parameterType="memTeamMember">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO mem_team_member
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_MEMBER_ID,
+		C_TEAM_ID,
+		C_TYPE
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{memberId},
+		#{teamId},
+		#{type}
+		)
+
+		
+	</insert>
+	
+	<insert id="addTeamMember" >
+		INSERT INTO mem_team_member
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_MEMBER_ID,
+		C_TEAM_ID,
+		C_TYPE
+		)
+		VALUES
+		<foreach collection="list" index="index" item="item" open="" separator="," close="" >
+			(
+			#{item.id},
+			#{item.createBy},
+			SYSDATE(),
+			#{item.updateBy},
+			SYSDATE(),
+			0,
+			#{item.memberId},
+			#{item.teamId},
+			#{item.type}
+			)
+		</foreach>
+		
+	</insert>
+
+	<update id="update" parameterType="memTeamMember" >
+		UPDATE mem_team_member SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_MEMBER_ID = #{memberId},
+		C_TEAM_ID = #{teamId},
+		C_TYPE = #{type}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM mem_team_member 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<delete id="delByTeamId" parameterType="String">
+		DELETE FROM mem_team_member 
+		WHERE C_TEAM_ID = #{teamId}
+	</delete>
+	
+
+</mapper>

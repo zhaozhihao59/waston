@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+                        http://www.springframework.org/schema/context 
+                        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                        http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+						http://www.springframework.org/schema/aop
+						http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+                        http://www.springframework.org/schema/mvc
+						http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+						http://www.springframework.org/schema/aop
+						http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+						http://www.springframework.org/schema/task
+						http://www.springframework.org/schema/task/spring-task-3.0.xsd
+						http://www.springframework.org/schema/cache
+						http://www.springframework.org/schema/cache/spring-cache.xsd">
+	<!-- 自动装配bean -->
+	<context:component-scan base-package="com.tocersoft" />
+	
+	<context:property-placeholder location="classpath:dbconfig.properties,classpath:appconfig.properties,classpath:weixin.properties" />
+	
+	<context:annotation-config />
+	
+	<bean id="parentDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="maxPoolSize" value="${pool.c3p0.maxPoolSize}" />
+		<property name="minPoolSize" value="${pool.c3p0.minPoolSize}" />
+		<property name="checkoutTimeout" value="${pool.c3p0.checkoutTimeout}" />
+		<property name="idleConnectionTestPeriod" value="${pool.c3p0.idleConnectionTestPeriod}" />
+		<property name="maxIdleTime" value="${pool.c3p0.maxIdleTime}" />
+		<property name="initialPoolSize" value="${pool.c3p0.initialPoolSize}" />
+		<property name="acquireIncrement" value="${pool.c3p0.acquireIncrement}" />
+		<property name="testConnectionOnCheckout" value="${pool.c3p0.testConnectionOnCheckout}" />
+		<property name="testConnectionOnCheckin" value="${pool.c3p0.testConnectionOnCheckin}" />
+		<property name="automaticTestTable" value="${pool.c3p0.automaticTestTable}" />
+	</bean>
+	
+	<!-- 数据源 -->
+	<!-- Data Source -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close" parent="parentDataSource">
+		<property name="driverClass" value="${jdbc.driverClass}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.user}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+	<!-- sessionFactory -->
+	<bean id="sqlSessionFactory" name="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:sqlmap-config.xml" />
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:com/tocersoft/base/mapper/*.xml</value>
+				<value>classpath:com/tocersoft/auth/mapper/*.xml</value>
+				<value>classpath:com/tocersoft/system/mapper/*.xml</value>
+				<value>classpath:com/tocersoft/cms/mapper/*.xml</value>
+				<value>classpath:com/tocersoft/member/mapper/*.xml</value>
+				<value>classpath:com/tocersoft/email/mapper/*.xml</value>
+				<value>classpath:com/tocersoft/game/mapper/*.xml</value>
+				<value>classpath:com/tocersoft/subscribe/mapper/*.xml</value>
+				<value>classpath:com/tocersoft/activity/mapper/*.xml</value>
+				<value>classpath:com/tocersoft/professional/mapper/*.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- spring 事务 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 开启spring 注解事务 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+	<!-- 配置自动mapper -->
+	<bean name="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="annotationClass" value="org.springframework.stereotype.Repository" />
+		<property name="basePackage" value="com.tocersoft" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+
+	<!-- freeMarker config-->
+	<bean id="freeMarkerConfigurer"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="templateLoaderPath">
+			<value>/WEB-INF/freemarker/</value>
+		</property>
+		<property name="freemarkerSettings">
+			<props>
+				<prop key="default_encoding">UTF-8</prop>
+				<prop key="locale">zh_CN</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- config  for task -->
+	<task:annotation-driven />
+	<bean id="springUtil" class="com.tocersoft.base.utils.SpringUtil" lazy-init="false" />
+</beans>

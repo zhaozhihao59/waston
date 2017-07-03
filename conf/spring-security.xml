@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns="http://www.springframework.org/schema/beans" 
+	   xmlns:sec="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/security
+       http://www.springframework.org/schema/security/spring-security-3.0.xsd"
+       default-lazy-init="true">
+       
+    <bean id="customizePasswordEncoder" class="com.tocersoft.base.utils.CustomizePasswordEncoder" />
+
+       
+	<sec:http auto-config="true" servlet-api-provision="false" access-denied-page="/html/error_page_access_denied.html" create-session="always">
+		<sec:form-login login-page="/admin/login.htm" login-processing-url="/admin/login/check" default-target-url="/admin/index.htm" authentication-failure-url="/admin/login.htm" always-use-default-target="true"  />
+		<sec:logout invalidate-session="true" logout-success-url="/admin/login.htm" logout-url="/admin/logout.htm" />
+		
+		<!-- 后台登录 -->
+		<sec:intercept-url pattern="/admin/login.htm" filters="none" />
+		<sec:intercept-url pattern="/admin/index.htm" access="ROLE_BASE" />
+
+		<sec:intercept-url pattern="/admin/**/**.htm" access="ROLE_BASE" />
+	</sec:http>
+	
+	<sec:authentication-manager>
+		<sec:authentication-provider user-service-ref="userDetailsService">
+			<sec:password-encoder ref="customizePasswordEncoder">
+				<sec:salt-source user-property="username"/>
+			</sec:password-encoder>
+		</sec:authentication-provider>
+	</sec:authentication-manager>
+
+	
+
+</beans>

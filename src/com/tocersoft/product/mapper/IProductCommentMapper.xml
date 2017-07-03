@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IProductCommentDao">
+	<resultMap type="productComment" id="productCommentResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--会员ID -->
+		<result property="memberId" column="C_MEMBER_ID" />
+		<!--评论内容 -->
+		<result property="content" column="C_CONTENT" />
+		<!--评分 -->
+		<result property="mark" column="C_MARK" />
+		<!--产品ID -->
+		<result property="productId" column="C_PRODUCT_ID" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_MEMBER_ID,
+		o.C_CONTENT,
+		o.C_MARK,
+		o.C_PRODUCT_ID
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.productId != null and condition.productId != ''">
+			AND o.C_PRODUCT_ID = #{condition.productId}
+		</if>
+	</sql>
+
+	<select id="listProductCommentByPage" resultMap="productCommentResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_comment o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+		ORDER BY o.C_CREATE_DATE desc
+	</select>
+	<select id="listProductCommentByPageCount" resultType="int">
+		SELECT count(1) FROM product_comment o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getProductCommentById" resultMap="productCommentResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_comment o
+		WHERE o.ID = #{id}
+	</select>
+
+	<select id="listProductCommentByCondition" resultMap="productCommentResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_comment o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<insert id="add" parameterType="productComment">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO product_comment
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_MEMBER_ID,
+		C_CONTENT,
+		C_MARK,
+		C_PRODUCT_ID
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{memberId},
+		#{content},
+		#{mark},
+		#{productId}
+		)
+	</insert>
+
+	<update id="update" parameterType="productComment" >
+		UPDATE product_comment SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_MEMBER_ID = #{memberId},
+		C_CONTENT = #{content},
+		C_MARK = #{mark},
+		C_PRODUCT_ID = #{productId}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM product_comment 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

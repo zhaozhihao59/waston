@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IProductCategoryDao">
+	<resultMap type="productCategory" id="productCategoryResultMap">
+		<!--类别id，不允许重复 -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除：0-不删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--类别名称 -->
+		<result property="name" column="C_NAME" />
+		<!--类别名称(英文) -->
+		<result property="nameEn" column="C_NAME_EN" />
+		<!--提示文字 -->
+		<result property="tip" column="C_TIP" />
+		<!--类别父节点ID，必须先存在才能添加 -->
+		<result property="parentId" column="C_PARENT_ID" />
+		<!--0-叶节点，1-根节点 -->
+		<result property="isParent" column="C_IS_PARENT" />
+		<!--类别图片URL -->
+		<result property="imgPath" column="C_IMG_PATH" />
+		<!--类别备注 -->
+		<result property="remark" column="C_REMARK" />
+		<!--类别备注(英文) -->
+		<result property="remarkEn" column="C_REMARK_EN" />
+		<!--排序参数：数字越小越靠前  -->
+		<result property="sort" column="C_SORT" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_NAME,
+		o.C_NAME_EN,
+		o.C_TIP,
+		o.C_PARENT_ID,
+		o.C_IS_PARENT,
+		o.C_IMG_PATH,
+		o.C_REMARK,
+		o.C_REMARK_EN,
+		o.C_SORT
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.name != null and condition.name != ''">
+			AND o.C_NAME like '%${condition.name}%' 
+		</if>
+		<if test="condition.nameEn != null and condition.nameEn != ''">
+			AND o.C_NAME_EN like '%${condition.nameEn}%' 
+		</if>
+		<if test="condition.tip != null and condition.tip != ''">
+			AND o.C_TIP like '%${condition.tip}%' 
+		</if>
+		<if test="condition.parentId != null and condition.parentId != ''">
+			AND o.C_PARENT_ID like '%${condition.parentId}%' 
+		</if>
+		<if test="condition.imgPath != null and condition.imgPath != ''">
+			AND o.C_IMG_PATH like '%${condition.imgPath}%' 
+		</if>
+		<if test="condition.remark != null and condition.remark != ''">
+			AND o.C_REMARK like '%${condition.remark}%' 
+		</if>
+		<if test="condition.remarkEn != null and condition.remarkEn != ''">
+			AND o.C_REMARK_EN like '%${condition.remarkEn}%' 
+		</if>
+	</sql>
+
+	<select id="listProductCategoryByPage" resultMap="productCategoryResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_category o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+		ORDER BY o.C_SORT ASC, o.C_CREATE_DATE ASC 
+	</select>
+	
+	<select id="listProductCategory" resultMap="productCategoryResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_category o 
+		ORDER BY o.C_SORT ASC, o.C_CREATE_DATE ASC 
+	</select>
+	
+	<select id="listProductCategoryByPageCount" resultType="int">
+		SELECT count(1) FROM product_category o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getProductCategoryById" resultMap="productCategoryResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_category o
+		WHERE o.ID = #{id}
+	</select>
+
+	<select id="listProductCatgoryByParentId" resultMap="productCategoryResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_category o
+		WHERE C_PARENT_ID = #{parentId} 
+		ORDER BY o.C_SORT ASC, o.C_CREATE_DATE ASC 
+	</select>
+	
+	<!-- 查询父类别 -->
+	<select id="listTopProductCatgory" resultMap="productCategoryResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_category o 
+		WHERE C_PARENT_ID = '0' 
+		ORDER BY o.C_SORT ASC, o.C_CREATE_DATE ASC 
+	</select>
+	
+	<insert id="add" parameterType="productCategory">
+		INSERT INTO product_category
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_NAME,
+		C_NAME_EN,
+		C_TIP,
+		C_PARENT_ID,
+		C_IS_PARENT,
+		C_IMG_PATH,
+		C_REMARK,
+		C_REMARK_EN,
+		C_SORT
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{name},
+		#{nameEn},
+		#{tip},
+		#{parentId},
+		#{isParent},
+		#{imgPath},
+		#{remark},
+		#{remarkEn},
+		#{sort}
+		)
+	</insert>
+
+	<update id="update" parameterType="productCategory" >
+		UPDATE product_category SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_NAME = #{name},
+		C_NAME_EN = #{nameEn},
+		C_TIP = #{tip},
+		C_PARENT_ID = #{parentId},
+		C_IS_PARENT = #{isParent},
+		C_IMG_PATH = #{imgPath},
+		C_REMARK = #{remark},
+		C_REMARK_EN = #{remarkEn},
+		C_SORT = #{sort}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM product_category 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

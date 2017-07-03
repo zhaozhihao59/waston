@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<properties>
+		<property name="dialect" value="mysql" />
+	</properties>
+	<typeAliases>
+		<!-- 基础操作权限 -->
+		<typeAlias alias="user" type="com.tocersoft.auth.entity.User"/>
+		<typeAlias alias="role" type="com.tocersoft.auth.entity.Role"/>
+		<typeAlias alias="right" type="com.tocersoft.auth.entity.Right"/>
+		<typeAlias alias="depart" type="com.tocersoft.auth.entity.Depart" />
+		
+		<!-- 网站后台 -->
+		<typeAlias alias="cmsChannel" type="com.tocersoft.cms.entity.CmsChannel"/>
+		<typeAlias alias="cmsArticle" type="com.tocersoft.cms.entity.CmsArticle"/>
+		<typeAlias alias="cmsAdv" type="com.tocersoft.cms.entity.CmsAdv"/>
+		<typeAlias alias="cmsAdvPhoto" type="com.tocersoft.cms.entity.CmsAdvPhoto"/>
+		<typeAlias alias="message" type="com.tocersoft.cms.entity.Message"/>
+		
+		<!-- 系统管理 -->
+		<typeAlias alias="sysDict" type="com.tocersoft.system.entity.SysDict"/>
+		<typeAlias alias="sysDictItem" type="com.tocersoft.system.entity.SysDictItem"/>
+		<typeAlias alias="codeProvince" type="com.tocersoft.system.entity.CodeProvince"/>
+		<typeAlias alias="codeCity" type="com.tocersoft.system.entity.CodeCity"/>
+		<typeAlias alias="codeAddress" type="com.tocersoft.system.entity.CodeAddress"/>
+		<typeAlias alias="sysUploadObject" type="com.tocersoft.system.entity.SysUploadObject" />
+		<typeAlias alias="sysUploadFile" type="com.tocersoft.system.entity.SysUploadFile" />
+		
+		<!-- 邮件 -->
+		<typeAlias alias="sysEmail" type="com.tocersoft.email.entity.SysEmail"/>
+		<typeAlias alias="emailServerConfig" type="com.tocersoft.email.entity.EmailServerConfig"/>
+		<typeAlias alias="sysEmailTemplate" type="com.tocersoft.email.entity.SysEmailTemplate"/>
+		
+		<!-- 会员 -->
+		<typeAlias alias="member" type="com.tocersoft.member.entity.Member" />
+		<typeAlias alias="memAddress" type="com.tocersoft.member.entity.MemAddress" />
+		<typeAlias alias="memLevel" type="com.tocersoft.member.entity.MemLevel" />
+		<typeAlias alias="memTeamMember" type="com.tocersoft.member.entity.MemTeamMember" />
+		<typeAlias alias="memTeam" type="com.tocersoft.member.entity.MemTeam" />
+		
+		<!-- 赛事 -->
+		<typeAlias alias="gameItem" type="com.tocersoft.game.entity.GameItem" />
+		<typeAlias alias="gameEnroll" type="com.tocersoft.game.entity.GameEnroll" />
+		<typeAlias alias="gameEnrollTeam" type="com.tocersoft.game.entity.GameEnrollTeam" />
+		<typeAlias alias="game" type="com.tocersoft.game.entity.Game" />
+		
+		<!-- 产品管理 -->
+		<typeAlias alias="productWholesaleRange" type="com.tocersoft.product.entity.ProductWholesaleRange" />
+		<typeAlias alias="productWeightRange" type="com.tocersoft.product.entity.ProductWeightRange" />
+		<typeAlias alias="productSpecSelfDef" type="com.tocersoft.product.entity.ProductSpecSelfDef" />
+		<typeAlias alias="productSkuAttrval" type="com.tocersoft.product.entity.ProductSkuAttrval" />
+		<typeAlias alias="productSku" type="com.tocersoft.product.entity.ProductSku" />
+		<typeAlias alias="productSaleSetting" type="com.tocersoft.product.entity.ProductSaleSetting" />
+		<typeAlias alias="productPackage" type="com.tocersoft.product.entity.ProductPackage" />
+		<typeAlias alias="productInventory" type="com.tocersoft.product.entity.ProductInventory" />
+		<typeAlias alias="productCategoryAttributeValue" type="com.tocersoft.product.entity.ProductCategoryAttributeValue" />
+		<typeAlias alias="productCategoryAttribute" type="com.tocersoft.product.entity.ProductCategoryAttribute" />
+		<typeAlias alias="productCategory" type="com.tocersoft.product.entity.ProductCategory" />
+		<typeAlias alias="productBrand" type="com.tocersoft.product.entity.ProductBrand" />
+		<typeAlias alias="productAttrValue" type="com.tocersoft.product.entity.ProductAttrValue" />
+		<typeAlias alias="productAttr" type="com.tocersoft.product.entity.ProductAttr" />
+		<typeAlias alias="product" type="com.tocersoft.product.entity.Product" />
+		<typeAlias alias="exchangeRate" type="com.tocersoft.product.entity.ExchangeRate" />
+		<typeAlias alias="productLogistics" type="com.tocersoft.product.entity.ProductLogistics" />
+		<typeAlias alias="productComment" type="com.tocersoft.product.entity.ProductComment" />
+		<!-- 在线订单 -->
+		<typeAlias alias="orderSellItem" type="com.tocersoft.order.entity.OrderSellItem" />
+		<typeAlias alias="orderSell" type="com.tocersoft.order.entity.OrderSell" />
+		<typeAlias alias="orderCartItem" type="com.tocersoft.order.entity.OrderCartItem" />
+		<typeAlias alias="freightTemplateItem" type="com.tocersoft.order.entity.FreightTemplateItem" />
+		<typeAlias alias="freightTemplate" type="com.tocersoft.order.entity.FreightTemplate" />
+		<!-- 订阅 -->
+		<typeAlias alias="subscribeSendRecord" type="com.tocersoft.subscribe.entity.SubscribeSendRecord" />
+		<typeAlias alias="subscribeSend" type="com.tocersoft.subscribe.entity.SubscribeSend" />
+		<typeAlias alias="subscribe" type="com.tocersoft.subscribe.entity.Subscribe" />
+		<!--活动，活动报名  -->
+		<typeAlias alias="activityEnroll" type="com.tocersoft.activity.entity.ActivityEnroll" />
+		<typeAlias alias="activity" type="com.tocersoft.activity.entity.Activity" />
+		<!-- 专业人员 -->
+		<typeAlias alias="professional" type="com.tocersoft.professional.entity.Professional" />
+	</typeAliases>
+	<plugins>
+		<plugin interceptor="com.tocersoft.base.page.PaginationInterceptor" />
+	</plugins>
+</configuration>

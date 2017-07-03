@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.member.dao.IMemLevelDao">
+	<resultMap type="memLevel" id="memLevelResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除：0-不删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--等级名称 -->
+		<result property="levelName" column="C_LEVEL_NAME" />
+		<!--等级数字：1-一级；2-二级；3-三级；…… -->
+		<result property="levelNum" column="C_LEVEL_NUM" />
+		<!--等级备注 -->
+		<result property="levelNote" column="C_LEVEL_NOTE" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_LEVEL_NAME,
+		o.C_LEVEL_NUM,
+		o.C_LEVEL_NOTE
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.levelName != null and condition.levelName != ''">
+			AND o.C_LEVEL_NAME like concat('%',#{condition.levelName},'%') 
+		</if>
+		<if test="condition.levelNote != null and condition.levelNote != ''">
+			AND o.C_LEVEL_NOTE like concat('%',#{condition.levelNote},'%') 
+		</if>
+
+	</sql>
+
+	<select id="listMemLevelByPage" resultMap="memLevelResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_level o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+		ORDER BY o.C_LEVEL_NUM
+	</select>
+	<select id="listMemLevelByPageCount" resultType="int">
+		SELECT count(1) FROM mem_level o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	
+	<select id="listAllMemLevel" resultMap="memLevelResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_level o
+		ORDER BY o.C_LEVEL_NUM ASC 
+	</select>
+
+	<select id="getMemLevelById" resultMap="memLevelResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_level o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<select id="getCountByLevelNumAndId" resultType="int" parameterType="memLevel">
+		SELECT 
+		CASE
+			WHEN COUNT(1) IS NULL THEN 0
+			ELSE COUNT(1)
+		END
+		FROM mem_level o
+		WHERE o.C_LEVEL_NUM = #{levelNum}
+		<if test="id != null and id != ''">
+			AND o.ID != #{id}
+		</if>
+	</select>
+	
+	<select id="getMinMemLevel" resultMap="memLevelResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_level o
+		WHERE o.C_LEVEL_NUM = 
+		(
+			SELECT MIN(C_LEVEL_NUM) FROM mem_level
+		)
+	</select>
+	
+
+	<insert id="add" parameterType="memLevel">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO mem_level(ID,C_CREATE_BY,C_CREATE_DATE,C_UPDATE_BY,C_UPDATE_DATE,C_DELETE_FLAG,C_LEVEL_NAME,C_LEVEL_NUM,C_LEVEL_NOTE)
+		VALUES
+		(#{id},#{createBy},#{createDate},#{updateBy},#{updateDate},#{deleteFlag},#{levelName},#{levelNum},#{levelNote})
+	</insert>
+
+	<update id="update" parameterType="memLevel" >
+		UPDATE mem_level SET
+		C_CREATE_BY = #{createBy},
+		C_CREATE_DATE = #{createDate},
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = #{updateDate},
+		C_DELETE_FLAG = #{deleteFlag},
+		C_LEVEL_NAME = #{levelName},
+		C_LEVEL_NUM = #{levelNum},
+		C_LEVEL_NOTE = #{levelNote}
+		WHERE ID = #{id}
+	</update>
+
+ <!--批量删除  -->
+	<delete id="doBatchDelMember">
+		DELETE FROM mem_level 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	<!-- //id删除 -->
+	<delete id="delMemberById">
+		DELETE FROM mem_level 
+		WHERE ID = #{id} 
+	</delete>
+</mapper>

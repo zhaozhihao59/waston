@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.auth.dao.IUserDao">
+	<resultMap type="user" id="userResultMap" extends="BaseBusEntity.entity">
+		<result column="C_ACCOUNT" property="account" />
+		<result column="C_BIRTHDAY" property="birthday" />
+		<result column="C_CONTACT" property="contact" />
+		<result column="C_EMAIL" property="email" />
+		<result column="C_MOBILE" property="mobile" />
+		<result column="C_NAME" property="name" />
+		<result column="C_ONLINE_STATE" property="onlineState" />
+		<result column="C_PASSWORD" property="password" />
+		<result column="C_SEX" property="sex" />
+		<result column="C_STAFF_ID" property="staffId" />
+		<result column="C_STATE" property="state" />
+		<result column="C_TEL" property="tel" />
+		<result column="C_IS_CHANGE_PWD" property="isChangePwd" />
+		<result column="C_DEPART_ID" property="departId" />
+		<result column="C_DEPART_NAME" property="departName" />
+		<result column="C_IS_MANAGE" property="isManager" />
+		<result column="C_EN_NAME" property="enName"/>
+		<result column="C_EXT" property="ext"/>
+	</resultMap>
+	
+	<sql id="allColumnSql">
+		<![CDATA[
+			u.id,u.C_CREATE_BY,u.C_CREATE_DATE,u.C_DELETE_FLAG,u.C_UPDATE_BY,u.C_UPDATE_DATE
+			,u.C_ACCOUNT,u.C_BIRTHDAY,u.C_CONTACT,u.C_EMAIL,u.C_MOBILE,u.C_NAME,u.C_ONLINE_STATE
+			,u.C_PASSWORD,u.C_IS_CHANGE_PWD,u.C_SEX,u.C_STAFF_ID,u.C_STATE,u.C_TEL,u.C_DEPART_ID,u.C_IS_MANAGE
+			,u.C_EN_NAME,u.C_EXT
+		]]>
+	</sql>
+	
+	<sql id="allColumnSqlJoin">
+		<![CDATA[
+			u.id,u.C_CREATE_BY,u.C_CREATE_DATE,u.C_DELETE_FLAG,u.C_UPDATE_BY,u.C_UPDATE_DATE,u.C_EN_NAME,u.C_EXT
+			,u.C_ACCOUNT,u.C_BIRTHDAY,u.C_CONTACT,u.C_EMAIL,u.C_MOBILE,u.C_NAME,u.C_ONLINE_STATE
+			,u.C_PASSWORD,u.C_IS_CHANGE_PWD,u.C_SEX,u.C_STAFF_ID,u.C_STATE,u.C_TEL,u.C_DEPART_ID,u.C_IS_MANAGE,d.C_NAME AS C_DEPART_NAME
+		]]>
+	</sql>
+	
+	<sql id="searchByPageConditionSql">
+		<if test=" condition.state != null and condition.state != '' ">
+			<![CDATA[
+		  	and u.C_STATE = #{condition.state}
+		  	]]>
+		</if>
+		<if test=" condition.roleId != null and condition.roleId != '' ">
+			<![CDATA[
+		  	and ar.id = #{condition.roleId}
+		  	]]>
+		</if>
+		 <if test=" condition.staffId != null and condition.staffId != '' ">
+		 	<![CDATA[
+		 	 and u.C_STAFF_ID like CONCAT('%',#{condition.staffId},'%')
+		 	]]>
+		 </if>
+  		 <if test=" condition.name != null and condition.name != '' ">
+		 	<![CDATA[
+		 	 and u.C_NAME like CONCAT('%',#{condition.name},'%')
+		 	]]>
+		 </if>
+  		 <if test=" condition.email != null and condition.email != '' ">
+		 	<![CDATA[
+		 	 and u.C_EMAIL like CONCAT('%',#{condition.email},'%')
+		 	]]>
+		 </if>
+  		 <if test=" condition.account != null and condition.account != '' ">
+		 	<![CDATA[
+		 	 and u.C_ACCOUNT like CONCAT('%',#{condition.account},'%')
+		 	]]>
+		 </if>
+  		 <if test=" condition.mobile != null and condition.mobile != '' ">
+		 	<![CDATA[
+		 	 and u.C_MOBILE like CONCAT('%',#{condition.mobile},'%')
+		 	]]>
+		 </if>
+		 <if test=" condition.filt == 1 ">
+		 	<![CDATA[
+		 	 and u.C_ACCOUNT != 'xiedanyang' and u.C_ACCOUNT != 'fangquan' and u.C_ACCOUNT != 'chaoge' and u.C_ACCOUNT != 'baichongbo'
+		 	]]>
+		 </if>
+		 <if test=" condition.stateDate != null ">
+		 	<![CDATA[
+		 	and ( u.C_STATE != 2 or C_STATE_DATE >= #{condition.stateDate} )
+		 	]]>
+		 </if>
+		<if test=" condition.departId != null and condition.departId != '' ">
+			<![CDATA[
+		  	and u.C_DEPART_ID LIKE CONCAT('%',#{condition.departId},'%')
+		  	]]>
+		</if>
+		 <if test=" condition.escapeSymbol ">
+		 	<![CDATA[
+		 	ESCAPE '/'
+		 	]]>
+		 </if>
+	</sql>
+	<!-- 查询所有权限 -->
+	<select id="getUserByAccount" resultMap="userResultMap" parameterType="string">
+		select 
+		<include refid="allColumnSql"/>
+		from auth_user u where u.C_DELETE_FLAG = 0 
+		and u.C_ACCOUNT = #{account}
+	</select>
+	<select id="listUserNo" resultMap="userResultMap" parameterType="string">
+		SELECT <include refid="allColumnSql"/>
+		FROM auth_user u
+		WHERE u.C_NAME LIKE CONCAT('%',#{name},'%')
+	</select>
+	
+	<select id="listUserByNameAndProductId" resultMap="userResultMap" >
+		SELECT <include refid="allColumnSql"/>
+		FROM auth_user u
+		left join pro_product p on p.C_DEPART_ID=u.C_DEPART_ID
+		WHERE u.C_NAME LIKE CONCAT('%',#{name},'%')
+		and p.ID = #{productId}
+	</select>
+	<!-- 查询所有会员 -->
+	<select id="getAllUser" resultMap="userResultMap" parameterType="string">
+		select 
+		<include refid="allColumnSql"/>
+		from auth_user u 
+		where u.C_DELETE_FLAG = 0 and u.C_ACCOUNT != 'admin' 
+		<include refid="searchByPageConditionSql"/>
+	</select>
+	<!-- 查询所有会员包括管理员 -->
+	<select id="getAllUserAndAdmin" resultMap="userResultMap" parameterType="string">
+		select 
+		<include refid="allColumnSql"/>
+		from auth_user u 
+		where u.C_DELETE_FLAG = 0 
+	</select>
+	<select id="getUserAnotherByAccount" resultMap="userResultMap" parameterType="string">
+		select 
+		<include refid="allColumnSql"/>
+		from auth_user u where u.C_DELETE_FLAG = 0 and u.C_ACCOUNT = #{account} and u.id != #{id}
+	</select>
+	
+	<!-- 根据ID查询用户 -->
+	<select id="getUserDetailById" resultMap="userResultMap" parameterType="string">
+		select 
+		<include refid="allColumnSqlJoin"/>
+		from auth_user u 
+		LEFT JOIN auth_depart d ON u.C_DEPART_ID = d.ID 
+		where u.C_DELETE_FLAG = 0 
+		and u.ID = #{id}
+	</select>
+	
+	<!-- 根据帐号查询用户 -->
+	<select id="getUserDetailByAccount" resultMap="userResultMap" parameterType="string">
+		select 
+		<include refid="allColumnSql"/>
+		from auth_user u where u.C_DELETE_FLAG = 0 and u.C_ACCOUNT = #{account}
+	</select>
+	
+		<!-- 根据部门ID查询用户 -->
+	<select id="getUserByDepartId" resultMap="userResultMap" parameterType="string">
+		select 
+		<include refid="allColumnSql"/>
+		from auth_user u where u.C_DELETE_FLAG = 0 and u.C_DEPART_ID = #{departId}
+	</select>
+	
+ 
+	
+	<!-- getUserCount -->
+	<select id="getUserCount" resultType="int" >
+		select COUNT(u.id)
+		from auth_user u where u.C_DELETE_FLAG = 0
+	</select>
+	
+	<!-- 新增用户 -->
+	<insert id="add" parameterType="user">
+	<selectKey keyProperty="id" order="BEFORE" resultType="string">
+		SELECT SYS_GUID()
+	</selectKey>
+		INSERT INTO auth_user 
+		(
+			ID,
+			C_CREATE_BY,
+			C_CREATE_DATE,
+			C_UPDATE_BY,
+			C_UPDATE_DATE,
+			C_BIRTHDAY,
+			C_CONTACT,
+			C_EMAIL,
+			C_MOBILE,
+			C_NAME,
+			C_SEX,
+			C_TEL,
+			C_STAFF_ID,
+			C_ACCOUNT,
+			C_STATE,
+			C_DELETE_FLAG,
+			C_PASSWORD,
+			C_DEPART_ID,
+			C_EN_NAME,
+			C_EXT
+		)
+		values
+		(
+			#{id},
+			#{createBy},
+			SYSDATE(),
+			#{updateBy},
+			SYSDATE(),
+			#{birthday},
+			#{contact},
+			#{email},
+			#{mobile},
+			#{name},
+			#{sex},
+			#{tel},
+			#{staffId},
+			#{account},
+			#{state},
+			0,
+			#{password},
+			#{departId},
+			#{enName},
+			#{ext}
+		)
+	</insert>
+	<!-- 修改用户 -->
+	<update id="update" parameterType="user">
+		UPDATE auth_user SET 
+		C_ACCOUNT= #{account},
+		C_BIRTHDAY= #{birthday},
+		C_IS_CHANGE_PWD= #{isChangePwd},
+		C_CONTACT= #{contact},
+		C_EMAIL= #{email},
+		C_MOBILE= #{mobile},
+		C_NAME= #{name},
+		C_SEX= #{sex},
+		C_TEL= #{tel},
+		C_EXT= #{ext},
+		C_STAFF_ID= #{staffId},
+		C_DEPART_ID= #{departId}
+		WHERE ID = #{id}
+	</update>
+	
+	<insert id="addUserRole" parameterType="Map">
+		INSERT INTO auth_user_roles (C_USER_ID,C_ROLE_ID)
+		values(#{userId}, #{roleId})
+	</insert>
+	
+	<!-- 分页 -->
+	<select id="getUserListByPage" parameterType="map" resultMap="userResultMap">
+		SELECT <include refid="allColumnSql"/> from auth_user u
+		<if test=" condition.roleId != null and condition.roleId != '' ">
+		 LEFT OUTER JOIN auth_user_roles ur on u.ID=ur.C_USER_ID 
+		 LEFT OUTER JOIN auth_role ar on ar.ID = ur.C_ROLE_ID
+		</if>
+		WHERE u.C_ACCOUNT!=#{condition.admin} and u.C_DELETE_FLAG = 0 
+		<include refid="searchByPageConditionSql"/>
+		order by u.C_IS_MANAGE DESC
+	</select>
+	
+	<select id="getUserByListPageCount" parameterType="map" resultType="int">
+		SELECT count(1) from auth_user u
+		<if test=" condition.roleId != null and condition.roleId != '' ">
+		 left outer join auth_user_roles ur on u.ID=ur.C_USER_ID 
+		 left outer join auth_role ar on ar.id = ur.C_ROLE_ID
+		 </if>
+		WHERE u.C_ACCOUNT!=#{condition.admin} and u.C_DELETE_FLAG = 0 
+		<include refid="searchByPageConditionSql"/>
+	</select>
+	
+	<!-- 启动/禁用 -->
+	<update id="updateState" parameterType="user">
+		UPDATE auth_user SET  
+		C_STATE = #{state} ,
+		C_STATE_DATE = #{stateDate} 
+		WHERE ID = #{id}
+	</update>
+	<!-- 修改密码 -->
+	<update id="resetPwd" parameterType="user">
+		UPDATE auth_user SET  C_PASSWORD = #{password} WHERE ID = #{id}
+	</update>
+	<!-- 删除用户 -->
+	<update id="updateUser">
+		UPDATE auth_user SET  C_DELETE_FLAG = 1 WHERE ID = #{id}
+	</update>
+	
+	<!-- 设置用户主管 -->
+	<update id="doManagerContr">
+		UPDATE auth_user SET  C_IS_MANAGE = 1 WHERE ID = #{sel}
+	</update>
+	<!-- 取消用户主管 -->
+	<update id="doManagerNoContr">
+		UPDATE auth_user SET  C_IS_MANAGE = 0 WHERE ID = #{sel}
+	</update>
+	
+	<update id="doBatchDelUser">
+		UPDATE auth_user SET C_DELETE_FLAG = 1 WHERE ID IN
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+		  #{item}
+		</foreach> 
+	</update>
+	<delete id="doBatchDelUserRole">
+		DELETE FROM auth_user_roles WHERE C_USER_ID IN
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+		  #{item}
+		</foreach> 
+	</delete>
+	<delete id="deleteById">
+		DELETE FROM auth_user WHERE id = #{id}
+	</delete>
+	<delete id="doBatchDelUserRoles">
+		DELETE FROM auth_user_roles WHERE C_USER_ID = #{id}
+	</delete>
+	<!-- 根据角色id获得用户的角色列表 -->
+	<select id="getUserByRoleId" parameterType="string" resultMap="userResultMap">
+		SELECT
+		<include refid="allColumnSql"/>
+		FROM auth_user u LEFT OUTER JOIN auth_user_roles ur
+		ON u.ID = ur.C_USER_ID WHERE ur.C_ROLE_ID=#{roleId}
+	</select>
+</mapper>

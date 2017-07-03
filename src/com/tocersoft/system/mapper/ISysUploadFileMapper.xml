@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.system.dao.ISysUploadFileDao">
+	<resultMap type="sysUploadFile" id="sysUploadFileResultMap">
+		<!--主键 -->
+		<id property="id" column="ID" />
+		<!--记录创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--最后更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--最后更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--删除标志位 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--文件名称-用户自定义 -->
+		<result property="name" column="C_NAME" />
+		<!--上传时的文件名  -->
+		<result property="fileName" column="C_FILE_NAME" />
+		<!--物理存放路径 -->
+		<result property="path" column="C_PATH" />
+		<!--文件下载URL -->
+		<result property="url" column="C_URL" />
+		<!--文件扩展名 -->
+		<result property="extend" column="C_EXTEND" />
+		<!--文件类型：0-图片，1-文件，2-音频，3-视频，4-Flash -->
+		<result property="type" column="C_TYPE" />
+		<!--文件说明 -->
+		<result property="desc" column="C_DESC" />
+		<!--超链接 -->
+		<result property="link" column="C_LINK" />
+		<!--相关联的对象ID -->
+		<result property="objectId" column="C_OBJECT_ID" />
+		<!--相关联的对象类型 -->
+		<result property="objectType" column="C_OBJECT_TYPE" />
+		<!--位置参数：由不同的业务对象类型进行自定义 -->
+		<result property="location" column="C_LOCATION" />
+		<!--排序字段，数字越小排序越靠前 -->
+		<result property="sort" column="C_SORT" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_DATE,
+		o.C_CREATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_DELETE_FLAG,
+		o.C_NAME,
+		o.C_FILE_NAME,
+		o.C_PATH,
+		o.C_URL,
+		o.C_EXTEND,
+		o.C_TYPE,
+		o.C_DESC,
+		o.C_LINK,
+		o.C_OBJECT_ID,
+		o.C_OBJECT_TYPE,
+		o.C_LOCATION,
+		o.C_SORT
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.name != null and condition.name != ''">
+			AND o.C_NAME like '%${condition.name}%' 
+		</if>
+		<if test="condition.fileName != null and condition.fileName != ''">
+			AND o.C_FILE_NAME like '%${condition.fileName}%' 
+		</if>
+		<if test="condition.path != null and condition.path != ''">
+			AND o.C_PATH like '%${condition.path}%' 
+		</if>
+		<if test="condition.url != null and condition.url != ''">
+			AND o.C_URL like '%${condition.url}%' 
+		</if>
+		<if test="condition.extend != null and condition.extend != ''">
+			AND o.C_EXTEND like '%${condition.extend}%' 
+		</if>
+		<if test="condition.desc != null and condition.desc != ''">
+			AND o.C_DESC like '%${condition.desc}%' 
+		</if>
+		<if test="condition.link != null and condition.link != ''">
+			AND o.C_LINK like '%${condition.link}%' 
+		</if>
+		<if test="condition.objectId != null and condition.objectId != ''">
+			AND o.C_OBJECT_ID = #{condition.objectId}
+		</if>
+		<if test="condition.objectType != null and condition.objectType != ''">
+			AND o.C_OBJECT_TYPE = #{condition.objectType} 
+		</if>
+
+	</sql>
+
+	<select id="listSysUploadFileByPage" resultMap="sysUploadFileResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM sys_upload_file o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listSysUploadFileByPageCount" resultType="int">
+		SELECT count(1) FROM sys_upload_file o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getSysUploadFileById" resultMap="sysUploadFileResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM sys_upload_file o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<select id="listSysUploadFileByObjectIdAndTypeId" resultMap="sysUploadFileResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM sys_upload_file o
+		WHERE o.C_OBJECT_ID = #{objectId}
+		AND o.C_OBJECT_TYPE = #{objectType}
+	</select>
+
+	<insert id="add" parameterType="sysUploadFile">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO sys_upload_file
+		(
+		ID,
+		C_CREATE_DATE,
+		C_CREATE_BY,
+		C_UPDATE_DATE,
+		C_UPDATE_BY,
+		C_DELETE_FLAG,
+		C_NAME,
+		C_FILE_NAME,
+		C_PATH,
+		C_URL,
+		C_EXTEND,
+		C_TYPE,
+		C_DESC,
+		C_LINK,
+		C_OBJECT_ID,
+		C_OBJECT_TYPE,
+		C_LOCATION,
+		C_SORT
+		)
+		VALUES
+		(
+		#{id},
+		SYSDATE(),
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		0,
+		#{name},
+		#{fileName},
+		#{path},
+		#{url},
+		#{extend},
+		#{type},
+		#{desc},
+		#{link},
+		#{objectId},
+		#{objectType},
+		#{location},
+		#{sort}
+		)
+	</insert>
+
+	<update id="update" parameterType="sysUploadFile" >
+		UPDATE sys_upload_file SET
+		C_UPDATE_DATE = SYSDATE(),
+		C_UPDATE_BY = #{updateBy},
+		C_NAME = #{name},
+		C_FILE_NAME = #{fileName},
+		C_PATH = #{path},
+		C_URL = #{url},
+		C_EXTEND = #{extend},
+		C_TYPE = #{type},
+		C_DESC = #{desc},
+		C_LINK = #{link},
+		C_OBJECT_ID = #{objectId},
+		C_OBJECT_TYPE = #{objectType},
+		C_LOCATION = #{location},
+		C_SORT = #{sort}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM sys_upload_file 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

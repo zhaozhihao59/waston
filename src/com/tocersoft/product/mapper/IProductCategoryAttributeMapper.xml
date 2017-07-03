@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IProductCategoryAttributeDao">
+	<resultMap type="productCategoryAttribute" id="productCategoryAttributeResultMap">
+		<!--类别ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--操作人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--操作时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除：0-不删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--属性Id -->
+		<result property="attrId" column="C_ATTR_ID" />
+		<!--类别ID -->
+		<result property="categoryId" column="C_CATEGORY_ID" />
+		<!--发布类目属性编号 -->
+		<result property="catePubAttrId" column="C_CATE_PUB_ATTR_ID" />
+		<!--叶子发布类目id -->
+		<result property="catePubId" column="C_CATE_PUB_ID" />
+		<!--属性的属性值是否可以自定义修改 1：是 0：否 （只对多选、单选有效） -->
+		<result property="defined" column="C_DEFINED" />
+		<!--是否是品牌属性（1：是，0：不是） -->
+		<result property="isbrand" column="C_ISBRAND" />
+		<!--是否有other属性（1：是，0：否） -->
+		<result property="isother" column="C_ISOTHER" />
+		<!--属性英文名称 -->
+		<result property="lineAttrName" column="C_LINE_ATTR_NAME" />
+		<!--属性中文名称 -->
+		<result property="lineAttrNameCn" column="C_LINE_ATTR_NAME_CN" />
+		<!--是否定位属性（1：定位属性，0：非定位属性）定位属性不可能是销售或购买属性且卖家不可更改 -->
+		<result property="located" column="C_LOCATED" />
+		<!--是否必填 （1：必填项， 0：非必填项） -->
+		<result property="required" column="C_REQUIRED" />
+		<!--是否销售属性（1：是销售属性，0：非销售属性） -->
+		<result property="saleAttr" column="C_SALE_ATTR" />
+		<!--排序值 -->
+		<result property="sortval" column="C_SORTVAL" />
+		<!--样式 1：文本 2：图片 3：文本 -->
+		<result property="style" column="C_STYLE" />
+		<!--形式 1：多选框 2：下拉框 4：字符型输入框 5：数值型输入框 -->
+		<result property="type" column="C_TYPE" />
+		<!--是否有效（1：有效，0：无效） -->
+		<result property="valid" column="C_VALID" />
+		<!--属性值 -->
+		<result property="attributeValue" column="C_ATTRIBUTE_VALUE" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_ATTR_ID,
+		o.C_CATEGORY_ID,
+		o.C_CATE_PUB_ATTR_ID,
+		o.C_CATE_PUB_ID,
+		o.C_DEFINED,
+		o.C_ISBRAND,
+		o.C_ISOTHER,
+		o.C_LINE_ATTR_NAME,
+		o.C_LINE_ATTR_NAME_CN,
+		o.C_LOCATED,
+		o.C_REQUIRED,
+		o.C_SALE_ATTR,
+		o.C_SORTVAL,
+		o.C_STYLE,
+		o.C_TYPE,
+		o.C_VALID
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.catePubId != null and condition.catePubId != ''">
+			AND o.C_CATE_PUB_ID like '%${condition.catePubId}%' 
+		</if>
+		<if test="condition.defined != null and condition.defined != ''">
+			AND o.C_DEFINED like '%${condition.defined}%' 
+		</if>
+		<if test="condition.isbrand != null and condition.isbrand != ''">
+			AND o.C_ISBRAND like '%${condition.isbrand}%'
+		</if>
+		<if test="condition.isother != null and condition.isother != ''">
+			AND o.C_ISOTHER like '%${condition.isother}%' 
+		</if>
+		<if test="condition.lineAttrName != null and condition.lineAttrName != ''">
+			AND o.C_LINE_ATTR_NAME like '%${condition.lineAttrName}%' 
+		</if>
+		<if test="condition.lineAttrNameCn != null and condition.lineAttrNameCn != ''">
+			AND o.C_LINE_ATTR_NAME_CN like '%${condition.lineAttrNameCn}%' 
+		</if>
+		<if test="condition.located != null and condition.located != ''">
+			AND o.C_LOCATED like '%${condition.located}%' 
+		</if>
+		<if test="condition.required != null and condition.required != ''">
+			AND o.C_REQUIRED like '%${condition.required}%' 
+		</if>
+		<if test="condition.saleAttr != null and condition.saleAttr != ''">
+			AND o.C_SALE_ATTR like '%${condition.saleAttr}%' 
+		</if>
+		<if test="condition.style != null and condition.style != ''">
+			AND o.C_STYLE like '%${condition.style}%' 
+		</if>
+		<if test="condition.type != null and condition.type != ''">
+			AND o.C_TYPE like '%${condition.type}%' 
+		</if>
+		<if test="condition.valid != null and condition.valid != ''">
+			AND o.C_VALID like '%${condition.valid}%' 
+		</if>
+		<if test="condition.categoryId != null and condition.categoryId != ''">
+			AND o.C_CATEGORY_ID like '%${condition.categoryId}%' 
+		</if>
+
+	</sql>
+	<!-- 产品属性查询 -->
+	<select id="listProductAttrAndCategoryByPage" resultMap="productCategoryAttributeResultMap">
+		select o1.ID,
+		o.C_LINE_ATTR_NAME_CN as C_ATTRIBUTE_VALUE,
+		o1.C_LINE_ATTRVAL_NAME_CN 
+		from product_category_attribute o 
+		left join product_attr_value o1 
+		on 
+		o.C_ATTR_ID=o1.C_ATTR_ID
+	</select>
+	<!-- 产品属性数量查询 -->
+	<select id="listProductAttrAndCategoryCount" resultType="int">
+		select count(1)
+		from product_category_attribute o 
+		left join product_attr_value o1 
+		on 
+		o.C_ATTR_ID=o1.C_ATTR_ID
+	</select>
+	
+	<select id="listProductCategoryAttributeByPage" resultMap="productCategoryAttributeResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_category_attribute o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listProductCategoryAttributeByPageCount" resultType="int">
+		SELECT count(1) FROM product_category_attribute o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getProductCategoryAttributeById" resultMap="productCategoryAttributeResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_category_attribute o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<select id="listProductCategoryAttributeByIds" resultMap="productCategoryAttributeResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_category_attribute o
+		WHERE o.ID in 
+		<foreach collection="idList" index="index" item="item" open="(" separator="," close=")">
+			#{item.attrId}
+		</foreach>
+	</select>
+	
+	<select id="listProductCategoryAttributeByCondition" resultMap="productCategoryAttributeResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_category_attribute o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+		limit 8 
+	</select>
+	
+	<select id="listCategoryAttrByCategoryIdIsSale" resultMap="productCategoryAttributeResultMap">
+		SELECT <include refid="allColumnSql"/> 
+		FROM product_category_attribute o 
+		WHERE C_CATEGORY_ID = #{categoryId} 
+		AND C_SALE_ATTR = #{saleAttr} 
+	</select>
+
+	<select id="listProductCategoryAttributeByCategoryId" resultMap="productCategoryAttributeResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_category_attribute o
+		WHERE C_CATEGORY_ID = #{categoryId}
+		limit 8 
+	</select>
+	
+
+	<insert id="add" parameterType="productCategoryAttribute">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO product_category_attribute
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_ATTR_ID,
+		C_CATEGORY_ID,
+		C_CATE_PUB_ATTR_ID,
+		C_CATE_PUB_ID,
+		C_DEFINED,
+		C_ISBRAND,
+		C_ISOTHER,
+		C_LINE_ATTR_NAME,
+		C_LINE_ATTR_NAME_CN,
+		C_LOCATED,
+		C_REQUIRED,
+		C_SALE_ATTR,
+		C_SORTVAL,
+		C_STYLE,
+		C_TYPE,
+		C_VALID
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{attrId},
+		#{categoryId},
+		#{catePubAttrId},
+		#{catePubId},
+		#{defined},
+		#{isbrand},
+		#{isother},
+		#{lineAttrName},
+		#{lineAttrNameCn},
+		#{located},
+		#{required},
+		#{saleAttr},
+		#{sortval},
+		#{style},
+		#{type},
+		#{valid}
+		)
+	</insert>
+
+	<update id="updateAll" parameterType="productCategoryAttribute" >
+		UPDATE product_category_attribute SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_ATTR_ID = #{attrId},
+		C_CATEGORY_ID = #{categoryId},
+		C_CATE_PUB_ATTR_ID = #{catePubAttrId},
+		C_CATE_PUB_ID = #{catePubId},
+		C_DEFINED = #{defined},
+		C_ISBRAND = #{isbrand},
+		C_ISOTHER = #{isother},
+		C_LINE_ATTR_NAME = #{lineAttrName},
+		C_LINE_ATTR_NAME_CN = #{lineAttrNameCn},
+		C_LOCATED = #{located},
+		C_REQUIRED = #{required},
+		C_SALE_ATTR = #{saleAttr},
+		C_SORTVAL = #{sortval},
+		C_STYLE = #{style},
+		C_TYPE = #{type},
+		C_VALID = #{valid}
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="update" parameterType="productCategoryAttribute" >
+		UPDATE product_category_attribute SET
+		C_UPDATE_DATE = SYSDATE(),
+		C_LINE_ATTR_NAME = #{lineAttrName},
+		C_LINE_ATTR_NAME_CN = #{lineAttrNameCn},
+		C_SALE_ATTR = #{saleAttr}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM product_category_attribute 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

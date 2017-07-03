@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.professional.dao.IProfessionalDao">
+	<resultMap type="professional" id="professionalResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记位：0-未删除；1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--专业人员名称 -->
+		<result property="name" column="C_NAME" />
+		<result property="nameEn" column="C_NAME_EN" />
+		<result property="nameJp" column="C_NAME_JP" />
+		<!--专业 人员简介 -->
+		<result property="desc" column="C_DESC" />
+		<result property="descEn" column="C_DESC_EN" />
+		<result property="descJp" column="C_DESC_JP" />
+		<!--专业人员 头像 -->
+		<result property="photo" column="C_PHOTO" />
+		<!--专业人员 邮箱 -->
+		<result property="email" column="C_EMAIL" />
+		<!--资格类型(数据库字典项多选) -->
+		<result property="qualification" column="C_QUALIFICATION" />
+		<result property="qualificationEn" column="C_QUALIFICATION_EN" />
+		<result property="qualificationJp" column="C_QUALIFICATION_JP" />
+		<!--工作语言(数据库字典项多选) -->
+		<result property="language" column="C_LANGUAGE" />
+		<result property="languageEn" column="C_LANGUAGE_EN" />
+		<result property="languageJp" column="C_LANGUAGE_JP" />
+		<!--专业人员类型0合伙人11高级顾问 -->
+		<result property="type" column="C_TYPE" />
+		<!-- z专业（数据库字典想多选） -->
+		<result property="business" column="C_BUSINESS"/>
+		<result property="businessEn" column="C_BUSINESS_EN"/>
+		<result property="businessJp" column="C_BUSINESS_JP"/>
+		<!-- 排序 -->
+		<result property="sort" column="C_SORT"/>
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_NAME,
+		o.C_NAME_EN,
+		o.C_NAME_JP,
+		o.C_DESC,
+		o.C_DESC_EN,
+		o.C_DESC_JP,
+		o.C_PHOTO,
+		o.C_EMAIL,
+		o.C_QUALIFICATION,
+		o.C_QUALIFICATION_EN,
+		o.C_QUALIFICATION_JP,
+		o.C_LANGUAGE,
+		o.C_LANGUAGE_EN,
+		o.C_LANGUAGE_JP,
+		o.C_TYPE,
+		o.C_BUSINESS,
+		o.C_BUSINESS_EN,
+		o.C_BUSINESS_JP,
+		o.C_SORT
+	</sql>
+<!-- o.C_COMPANY_NAME like '%${condition.key}%' or
+			o.C_POSITION like '%${condition.key}%'   -->
+	<sql id="searchConditionSql">
+			<if test="condition.keyname != null and condition.keyname !='' ">
+				AND (
+					<foreach collection="condition.keyname" index="index" item="item">
+					<if test="index != 0">
+						or
+					</if>
+					 o.C_QUALIFICATION like '%${item}%' 
+					</foreach>
+				)
+			</if>
+			
+			<if test="condition.key != null and condition.key != ''">
+			AND (
+			o.C_NAME like '%${condition.key}%' or
+			o.C_EMAIL like '%${condition.key}%' or
+			o.C_QUALIFICATION like '%${condition.key}%' or
+			o.C_LANGUAGE like '%${condition.key}%' or
+			o.C_TYPE like '%${condition.key}%'
+			)
+		</if>
+		<if test="condition.name != null and condition.name != ''">
+			AND o.C_NAME like '%${condition.name}%' 
+		</if>
+		<if test="condition.desc != null and condition.desc != ''">
+			AND o.C_DESC like '%${condition.desc}%' 
+		</if>
+		<if test="condition.photo != null and condition.photo != ''">
+			AND o.C_PHOTO like '%${condition.photo}%' 
+		</if>
+		<if test="condition.email != null and condition.email != ''">
+			AND o.C_EMAIL like '%${condition.email}%' 
+		</if>
+		<if test="condition.qualification != null and condition.qualification != ''">
+			AND o.C_QUALIFICATION like '%${condition.qualification}%' 
+		</if>
+		<if test="condition.language != null and condition.language != ''">
+			AND o.C_LANGUAGE like '%${condition.language}%' 
+		</if>
+		<if test="condition.business != null and condition.business != ''">
+			AND o.C_BUSINESS like '%${condition.business}%' 
+		</if>
+		<if test="condition.nameEn != null and condition.nameEn != ''">
+			AND o.C_NAME_EN like '%${condition.nameEn}%' 
+		</if>
+		<if test="condition.descEn != null and condition.descEn != ''">
+			AND o.C_DESC_EN like '%${condition.descEn}%' 
+		</if>
+		<if test="condition.qualificationEn != null and condition.qualificationEn != ''">
+			AND o.C_QUALIFICATION_EN like '%${condition.qualificationEn}%' 
+		</if>
+		<if test="condition.languageEn != null and condition.languageEn != ''">
+			AND o.C_LANGUAGE_EN like '%${condition.language}%' 
+		</if>
+		<if test="condition.businessEn != null and condition.businessEn != ''">
+			AND o.C_BUSINESS_EN like '%${condition.businessEn}%' 
+		</if>
+		<if test="condition.nameJp != null and condition.nameJp != ''">
+			AND o.C_NAME_JP like '%${condition.nameJp}%' 
+		</if>
+		<if test="condition.descJp != null and condition.descJp != ''">
+			AND o.C_DESC_JP like '%${condition.descJp}%' 
+		</if>
+		<if test="condition.qualificationJp != null and condition.qualificationJp != ''">
+			AND o.C_QUALIFICATION_JP like '%${condition.qualificationJp}%' 
+		</if>
+		<if test="condition.languageJp != null and condition.languageJp != ''">
+			AND o.C_LANGUAGE_JP like '%${condition.languageJp}%' 
+		</if>
+		<if test="condition.businessJp != null and condition.businessJp != ''">
+			AND o.C_BUSINESS_JP like '%${condition.businessJp}%' 
+		</if>
+		<if test="condition.type != null">
+			AND o.C_TYPE like '%${condition.type}%' 
+		</if>
+	</sql>
+<!-- 分页查询 -->
+	<select id="listProfessionalByPage" resultMap="professionalResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM professional o
+		WHERE 1=1 <include refid="searchConditionSql"/> ORDER BY o.C_SORT asc
+		
+	</select>
+	<select id="listProfessionalByPageCount" resultType="int">
+		SELECT count(1) FROM professional o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="getProfessionalById" resultMap="professionalResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM professional o
+		WHERE o.ID = #{id}
+	</select>
+
+	<insert id="add" parameterType="professional">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO professional
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_NAME,
+		C_NAME_EN,
+		C_NAME_JP,
+		C_DESC,
+		C_DESC_EN,
+		C_DESC_JP,
+		C_PHOTO,
+		C_EMAIL,
+		C_QUALIFICATION,
+		C_QUALIFICATION_EN,
+		C_QUALIFICATION_JP,
+		C_LANGUAGE,
+		C_LANGUAGE_EN,
+		C_LANGUAGE_JP,
+		C_TYPE,
+		C_BUSINESS,
+		C_BUSINESS_EN,
+		C_BUSINESS_JP,
+		C_SORT
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{name},
+		#{nameEn},
+		#{nameJp},
+		#{desc},
+		#{descEn},
+		#{descJp},
+		#{photo},
+		#{email},
+		#{qualification},
+		#{qualificationEn},
+		#{qualificationJp},
+		#{language},
+		#{languageEn},
+		#{languageJp},
+		#{type},
+		#{business},
+		#{businessEn},
+		#{businessJp},
+		#{sort}
+		)
+	</insert>
+
+	<update id="update" parameterType="professional" >
+		UPDATE professional SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_NAME = #{name},
+		C_NAME_EN = #{nameEn},
+		C_NAME_JP = #{nameJp},
+		C_DESC = #{desc},
+		C_DESC_EN = #{descEn},
+		C_DESC_JP = #{descJp},
+		C_PHOTO = #{photo},
+		C_EMAIL = #{email},
+		C_QUALIFICATION = #{qualification},
+		C_QUALIFICATION_EN = #{qualificationEn},
+		C_QUALIFICATION_JP = #{qualificationJp},
+		C_LANGUAGE = #{language},
+		C_LANGUAGE_EN = #{languageEn},
+		C_LANGUAGE_JP = #{languageJp},
+		C_TYPE = #{type},
+		C_BUSINESS = #{business},
+		C_BUSINESS_EN = #{businessEn},
+		C_BUSINESS_JP = #{businessJp},
+		C_SORT = #{sort}
+		WHERE ID = #{id}
+		
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM professional 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<select id="getProProfessionalByTime" resultMap="professionalResultMap">
+		SELECT max(oo.C_CREATE_DATE),oo.*
+		FROM professional oo
+		WHERE oo.C_CREATE_DATE <![CDATA[<]]>(
+			SELECT o.C_CREATE_DATE
+			FROM professional o
+			WHERE o.id=#{selIds})
+	</select>
+	<select id="getNextProProfessionalByTime" resultMap="professionalResultMap">
+		SELECT MIN(oo.C_CREATE_DATE),oo.*
+		FROM professional oo
+		WHERE oo.C_CREATE_DATE <![CDATA[>]]>(
+			SELECT o.C_CREATE_DATE
+			FROM professional o
+			WHERE o.id=#{selIds})
+	</select>
+	<!--  -->
+	<select id="listProfessionalLvShiId" resultMap="professionalResultMap">
+			select id from sys_dict_item d where d.C_NAME like "%律师%"
+	</select>
+	<!-- 根据Sort查询人员（有可能设置错误设置多个只去一个） -->
+		<select id="listProfessionalSort" resultMap="professionalResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM professional o
+		WHERE o.C_SORT = #{sort}
+	</select>
+</mapper>

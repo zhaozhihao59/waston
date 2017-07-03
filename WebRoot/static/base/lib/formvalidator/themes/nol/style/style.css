@@ -1,0 +1,59 @@
+.onShow
+{
+  
+    padding-left:25px; 
+    padding-right:5px;
+	margin-left:5px; 
+	font-size: 12px;
+	line-height:22px; 
+	vertical-align:middle;
+	display:inline-block;
+}
+.onFocus
+{
+   
+    padding-left:25px; 
+    padding-right:5px;
+	margin-left:5px; 
+	font-size: 12px;
+	line-height:22px; 
+	vertical-align:middle;
+	display:inline-block;
+}
+.onError
+{
+   
+    padding-left:25px;
+    padding-right:5px;
+	margin-left:5px; 
+	font-size: 12px;
+	line-height:22px; 
+	vertical-align:middle;
+	display:inline-block;
+	width:auto;
+}
+.onCorrect
+{
+    padding-left:25px; 
+    padding-right:5px;
+	margin-left:5px; 
+	font-size: 12px;
+	line-height:22px; 
+	vertical-align:middle;
+	display:inline-block;
+}
+.onLoad
+{
+    padding-left:25px;
+    padding-right:5px;
+	margin-left:5px; 
+	font-size: 12px;
+	line-height:22px; 
+	vertical-align:middle;
+	display:inline-block;
+} 
+
+.inputOnShow
+{
+	color: #999999
+}

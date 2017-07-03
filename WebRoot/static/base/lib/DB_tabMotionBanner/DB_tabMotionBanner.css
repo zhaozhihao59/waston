@@ -1,0 +1,37 @@
+ul,li{list-style:none;margin:0;padding:0}
+img{border:none}
+
+.DB_imgSet li a:hover{opacity:0.9}
+
+.DB_tab25 {width:100%;height:350px;position:relative;overflow:hidden;top: 0px;z-index:300;
+	-webkit-transition: top 0.5s ease-in-out 0s;
+	-moz-transition: top 0.5s ease-in-out 0s;
+	-o-transition: top 0.5s ease-in-out 0s;
+	transition: top 0.5s ease-in-out 0s;}
+.DB_tab25.cur {width:100%;height:488px;position:relative;overflow:hidden;top: 60px;}
+
+.DB_tab25 .DB_bgSet{position:relative;}
+.DB_tab25 .DB_bgSet li{position:absolute;width:100%;height:350px;display:none}
+
+.DB_tab25 .DB_imgSet{position:absolute;width:1000px;left:50%;margin-left:-500px;}
+
+.DB_tab25 .DB_imgSet .DB_1_1{position:absolute;left:0px;top:150px;}
+.DB_tab25 .DB_imgSet .DB_1_2{position:absolute;left:0px;top:205px;}
+.DB_tab25 .DB_imgSet .DB_1_3{position:absolute;left:0px;top:245px}
+
+.DB_tab25 .DB_imgSet .DB_2_1{position:absolute;left:0px;top:130px;}
+.DB_tab25 .DB_imgSet .DB_2_2{position:absolute;left:0px;top:185px}
+.DB_tab25 .DB_imgSet .DB_2_3{position:absolute;left:0px;top:250px}
+
+.DB_tab25 .DB_imgSet .DB_3_1{position:absolute;left:0px;top:130px;}
+.DB_tab25 .DB_imgSet .DB_3_2{position:absolute;left:0px;top:185px}
+.DB_tab25 .DB_imgSet .DB_3_3{position:absolute;left:0px;top:250px}
+
+
+.DB_tab25 .DB_menuWrap{position:absolute;width:1000px;left:50%;margin-left:-500px;}
+.DB_tab25 .DB_menuWrap .DB_menuSet{position:absolute;width:100%;top:260px;text-align:center;font-size:0}
+.DB_tab25 .DB_menuWrap .DB_menuSet li{cursor:pointer;margin:0 3px;display:inline}
+
+
+.DB_tab25 .DB_prev{position:absolute;left:-150px;top:140px;cursor:pointer;display:none}
+.DB_tab25 .DB_next{position:absolute;right:-150px;top:140px;cursor:pointer;display:none}

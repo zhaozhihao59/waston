@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IProductSaleSettingDao">
+	<resultMap type="productSaleSetting" id="productSaleSettingResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--对应的产品ID -->
+		<result property="productId" column="C_PRODUCT_ID" />
+		<!--备货期 -->
+		<result property="leadingTime" column="C_LEADING_TIME" />
+		<!--买家一次最大购买量 -->
+		<result property="maxSaleQty" column="C_MAX_SALE_QTY" />
+		<!--设置价格类型，1 分别设置价格，2 统一设置价格 -->
+		<result property="priceConfigType" column="C_PRICE_CONFIG_TYPE" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_PRODUCT_ID,
+		o.C_LEADING_TIME,
+		o.C_MAX_SALE_QTY,
+		o.C_PRICE_CONFIG_TYPE
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.productId != null and condition.productId != ''">
+			AND o.C_PRODUCT_ID like '%${condition.productId}%' 
+		</if>
+
+	</sql>
+
+	<select id="listProductSaleSettingByPage" resultMap="productSaleSettingResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_sale_setting o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listProductSaleSettingByPageCount" resultType="int">
+		SELECT count(1) FROM product_sale_setting o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getProductSaleSettingById" resultMap="productSaleSettingResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_sale_setting o
+		WHERE o.ID = #{id}
+	</select>
+
+	<insert id="add" parameterType="productSaleSetting">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO product_sale_setting
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_PRODUCT_ID,
+		C_LEADING_TIME,
+		C_MAX_SALE_QTY,
+		C_PRICE_CONFIG_TYPE
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{productId},
+		#{leadingTime},
+		#{maxSaleQty},
+		#{priceConfigType}
+		)
+	</insert>
+
+	<update id="update" parameterType="productSaleSetting" >
+		UPDATE product_sale_setting SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_PRODUCT_ID = #{productId},
+		C_LEADING_TIME = #{leadingTime},
+		C_MAX_SALE_QTY = #{maxSaleQty},
+		C_PRICE_CONFIG_TYPE = #{priceConfigType}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM product_sale_setting 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+	<delete id="delByProductId">
+		DELETE FROM product_sale_setting 
+		WHERE C_PRODUCT_ID = #{productId}
+	</delete>
+	
+</mapper>

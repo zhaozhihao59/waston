@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.member.dao.IMemberDao">
+	<resultMap type="member" id="memberResultMap">
+		<!--会员ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--姓名 -->
+		<result property="name" column="C_NAME" />
+		<!--手机号码 -->
+		<result property="mobile" column="C_MOBILE" />
+		<!--证件类型 -->
+		<result property="cardType" column="C_CARD_TYPE" />
+		<!--身份证号 -->
+		<result property="idCardNo" column="C_ID_CARD_NO" />
+		<!--电子邮箱 -->
+		<result property="email" column="C_EMAIL" />
+		<!--邮箱状态是否激活（1未激活2已激活） -->
+		<result property="emailactive" column="C_EMAILACTIVE" />
+		<!--会员帐号 -->
+		<result property="account" column="C_ACCOUNT" />
+		<!--登录密码 -->
+		<result property="password" column="C_PASSWORD" />
+		<!--QQ -->
+		<result property="qq" column="C_QQ" />
+		<!--微信号 -->
+		<result property="wechat" column="C_WECHAT" />
+		<!--地址 -->
+		<result property="address" column="C_ADDRESS" />
+		<!--行业 -->
+		<result property="industry" column="C_INDUSTRY" />
+		<!--性别：0-女；1-男 -->
+		<result property="sex" column="C_SEX" />
+		<!--个人简介 -->
+		<result property="brief" column="C_BRIEF" />
+		<!--描述 -->
+		<result property="desc" column="C_DESC" />
+		<!--省 -->
+		 <result property="province" column="C_PROVINCE" />
+		<!--省ID -->
+		<result property="provinceId" column="C_PROVINCE_ID" />
+		<!--市 -->
+		<result property="city" column="C_CITY" />
+		<!--市ID -->
+		<result property="cityId" column="C_CITY_ID" />
+		<!-- 县/区/镇 -->
+		<result property="district" column="C_DISTRICT" />
+		<!-- 县/区/镇ID -->
+		<result property="districtId" column="C_DISTRICT_ID" />
+		<!-- 省市 -->
+		<result property="provinceCity" column="C_PROVINCE_CITY" />
+		<!-- 邮编 -->
+		<result property="postCode" column="C_POST_CODE" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_NAME,
+		C_MOBILE,
+		C_CARD_TYPE,
+		C_ID_CARD_NO,
+		C_EMAIL,
+		C_EMAILACTIVE,
+		C_ACCOUNT,
+		C_PASSWORD,
+		C_QQ,
+		C_WECHAT,
+		C_ADDRESS,
+		C_INDUSTRY,
+		C_SEX,
+		C_BRIEF,
+		C_DESC
+		C_PROVINCE,
+		C_PROVINCE_ID,
+		C_CITY,
+		C_CITY_ID,
+		C_DISTRICT,
+		C_DISTRICT_ID,
+		C_PROVINCE_CITY,
+		C_POST_CODE
+	</sql>
+	
+	<sql id="simpleColumnSql">
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_NAME,
+		C_MOBILE,
+		C_CARD_TYPE,
+		C_ID_CARD_NO,
+		C_EMAIL,
+		C_EMAILACTIVE,
+		C_ACCOUNT,
+		C_PASSWORD,
+		C_QQ,
+		C_WECHAT,
+		C_ADDRESS,
+		C_INDUSTRY,
+		C_SEX,
+		C_BRIEF,
+		C_PROVINCE,
+		C_PROVINCE_ID,
+		C_CITY,
+		C_CITY_ID,
+		C_DISTRICT,
+		C_DISTRICT_ID,
+		C_PROVINCE_CITY,
+		C_POST_CODE
+	</sql>
+	<sql id="searchConditionSql">
+		<if test="condition.name != null and condition.name != ''">
+			AND C_NAME like '%${condition.name}%' 
+		</if>
+	</sql>
+
+	<select id="listMemberByPage" resultMap="memberResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_member
+		WHERE 1=1 
+		<include refid="searchConditionSql"/>
+		ORDER BY C_CREATE_DATE DESC
+		
+		
+	</select>
+	<select id="listMemberByPageCount" resultType="int">
+		SELECT count(1) FROM mem_member
+	</select>
+	
+	<select id="listMemberByKey" resultMap="memberResultMap">
+		SELECT <include refid="simpleColumnSql"/>
+		FROM mem_member 
+		WHERE C_NAME LIKE CONCAT('%',#{key},'%') 
+		OR C_ACCOUNT LIKE CONCAT('%',#{key},'%') 
+		OR C_MOBILE LIKE CONCAT('%',#{key},'%') 
+		OR C_EMAIL LIKE CONCAT('%',#{key},'%') 
+		OR C_WECHAT LIKE CONCAT('%',#{key},'%') 
+	</select>
+
+	<select id="listMemberByTeamMember" resultMap="memberResultMap">
+		SELECT mm.ID, mm.C_CREATE_BY, mm.C_CREATE_DATE, mm.C_UPDATE_BY, mm.C_UPDATE_DATE, mm.C_DELETE_FLAG, mm.C_NAME, mm.C_MOBILE, mm.C_CARD_TYPE, mm.C_ID_CARD_NO, mm.C_EMAIL, mm.C_EMAILACTIVE, mm.C_ACCOUNT, mm.C_PASSWORD, mm.C_QQ, mm.C_WECHAT, mm.C_ADDRESS, mm.C_INDUSTRY, mm.C_SEX, mm.C_BRIEF, mm.C_DESC C_PROVINCE, mm.C_PROVINCE_ID, mm.C_CITY, mm.C_CITY_ID, mm.C_DISTRICT, mm.C_DISTRICT_ID, mm.C_PROVINCE_CITY, mm.C_POST_CODE 
+		FROM mem_member AS mm
+			LEFT JOIN mem_team_member AS mtm ON mm.id=mtm.c_member_id
+		WHERE mtm.c_team_id IN(SELECT mtm2.c_team_id
+								FROM mem_team_member AS mtm2
+								WHERE mtm2.c_member_id=#{memberid}
+								)
+	</select>
+
+	<select id="getMemberById" resultMap="memberResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_member
+		WHERE ID = #{id}
+	</select>
+	
+	<select id="getMemberByAccount" resultMap="memberResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_member
+		WHERE C_ACCOUNT = #{account}
+	</select>
+	
+	<select id="getMemberByEmail" resultMap="memberResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_member
+		WHERE C_EMAIL = #{email}
+	</select>
+	
+	<select id="getMemberByMobile" resultMap="memberResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_member
+		WHERE C_MOBILE = #{mobile }
+	</select>
+	
+	
+	
+	<select id="getMemberByAccountPwd" resultMap="memberResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_member
+		WHERE ( C_ACCOUNT = #{account} OR C_EMAIL = #{account} OR C_MOBILE = #{account} ) 
+		AND C_PASSWORD = #{password}
+	</select>
+	
+
+	
+	<!-- 快速报名时生成会员 -->
+	<insert id="addMemberByEnroll" parameterType="member">
+		INSERT INTO mem_member(
+			ID,C_CREATE_BY,C_CREATE_DATE,C_UPDATE_BY,C_UPDATE_DATE,C_DELETE_FLAG,C_NAME,C_MOBILE,C_CARD_TYPE,C_ID_CARD_NO,C_ACCOUNT,C_PASSWORD,C_SEX
+		)	
+		VALUES
+		(
+			#{id},#{createBy},#{createDate},#{updateBy},#{updateDate},0,#{name},#{mobile},#{cardType},#{idCardNo},#{account},#{password},#{sex}
+		)
+	</insert>
+
+	<insert id="add" parameterType="member">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO mem_member(ID,C_CREATE_BY,C_CREATE_DATE,C_UPDATE_BY,C_UPDATE_DATE,C_DELETE_FLAG,C_NAME,C_MOBILE,C_CARD_TYPE,C_ID_CARD_NO,C_EMAIL,C_EMAILACTIVE,C_ACCOUNT,C_PASSWORD,C_QQ,C_WECHAT,C_ADDRESS,C_INDUSTRY,C_SEX,C_BRIEF,C_DESC,
+		C_PROVINCE,
+		C_PROVINCE_ID,
+		C_CITY,
+		C_CITY_ID,
+		C_DISTRICT,
+		C_DISTRICT_ID,
+		C_PROVINCE_CITY,
+		C_POST_CODE
+		)	
+		VALUES
+		(#{id},#{createBy},SYSDATE(),#{updateBy},SYSDATE(),0,#{name},#{mobile},#{cardType},#{idCardNo},#{email},#{emailactive},#{account},#{password},#{qq},#{wechat},#{address},#{industry},#{sex},#{brief},#{desc},
+		#{province},
+		#{provinceId},
+		#{city},
+		#{cityId},
+		#{district},
+		#{districtId},
+		#{provinceCity},
+		#{postCode}
+		)
+	</insert>
+
+	<update id="update" parameterType="member" >
+		UPDATE mem_member SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_NAME = #{name},
+		C_MOBILE = #{mobile},
+		C_CARD_TYPE = #{cardType},
+		C_ID_CARD_NO = #{idCardNo},
+		C_EMAIL = #{email},
+		C_EMAILACTIVE = #{emailactive},
+		C_ACCOUNT = #{account},
+		C_PASSWORD = #{password},
+		C_QQ = #{qq},
+		C_WECHAT = #{wechat},
+		C_ADDRESS = #{address},
+		C_INDUSTRY = #{industry},
+		C_SEX = #{sex},
+		C_BRIEF = #{brief},
+		C_DESC = #{desc},
+		C_PROVINCE = #{province},
+		C_PROVINCE_ID = #{provinceId},
+		C_CITY = #{city},
+		C_CITY_ID = #{cityId},
+		C_DISTRICT = #{district},
+		C_DISTRICT_ID = #{districtId},
+		C_PROVINCE_CITY = #{provinceCity},
+		C_POST_CODE = #{postCode}
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="updateEmailState">
+		UPDATE mem_member SET
+		C_EMAILACTIVE = #{emailactive}
+		WHERE ID = #{memberId}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM mem_member 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

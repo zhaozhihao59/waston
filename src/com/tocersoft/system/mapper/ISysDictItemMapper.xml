@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.system.dao.ISysDictItemDao">
+	<resultMap type="sysDictItem" id="sysDictItemMap" extends="BaseBusEntity.entity">
+		<!-- 名称 -->
+		<result property="name" column="C_NAME" />
+		<!-- 名称 (英文版)-->
+		<result property="nameEn" column="C_NAME_EN" />
+		<!-- 排序 -->
+		<result property="sort" column="C_SORT" />
+		<!-- 数据库字典ID -->
+		<result property="dictId" column="C_DICT_ID" />
+	</resultMap>
+	
+	<sql id="allColumnSql">
+		di.ID,di.C_CREATE_BY,di.C_CREATE_DATE,di.C_UPDATE_BY,di.C_UPDATE_DATE,di.C_DELETE_FLAG,
+		di.C_NAME,di.C_NAME_EN,di.C_SORT,di.C_DICT_ID
+	</sql>
+	
+	<!-- 根据数据库字典ID查询明细 -->
+	<select id="listSysDictItemByDictId" resultMap="sysDictItemMap">
+		SELECT
+		<include refid="allColumnSql"/>
+		FROM sys_dict_item di
+		WHERE di.C_DELETE_FLAG = 0
+		AND di.C_DICT_ID = #{dictId}
+		order by di.C_SORT
+	</select>
+	
+	<!-- 根据ID查询数据库字典明细 -->
+	<select id="getSysDictItemById" resultMap="sysDictItemMap">
+		SELECT
+		<include refid="allColumnSql"/>
+		FROM sys_dict_item di
+		WHERE di.C_DELETE_FLAG = 0
+		AND di.id = #{id}
+	</select>
+	
+	<!-- 添加数据库字典 -->
+	<insert id="addSysDictItem">
+		<selectKey keyProperty="id" order="BEFORE" resultType="string">
+			SELECT sys_guid()
+		</selectKey>
+		INSERT INTO sys_dict_item
+		(
+			ID,C_CREATE_BY,C_CREATE_DATE,C_UPDATE_BY,C_UPDATE_DATE,C_DELETE_FLAG,
+			C_NAME,C_SORT,C_DICT_ID
+		)
+		VALUES 
+		(
+			#{id},#{createBy},sysdate(),#{updateBy},sysdate(),0,
+			#{name},#{sort},#{dictId}
+		)
+	</insert>
+	
+	<!-- 修改数据库字典 -->
+	<update id="updateSysDictItem">
+		UPDATE sys_dict_item
+		SET C_UPDATE_BY = #{updateBy},
+			C_UPDATE_DATE = sysdate(),
+			C_NAME = #{name},
+			C_SORT = #{sort}
+		WHERE ID = #{id}
+	</update>
+	
+	<!-- 根据ID删除数据库字典 -->
+	<delete id="deleteSysDictItemById">
+		DELETE FROM sys_dict_item
+		WHERE id = #{id}
+	</delete>
+	
+	<!-- 批量删除数据库字典项 -->
+	<delete id="batchDelete">
+		DELETE FROM sys_dict_item
+		WHERE id IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+</mapper>

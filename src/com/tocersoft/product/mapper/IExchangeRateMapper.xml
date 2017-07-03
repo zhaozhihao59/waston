@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IExchangeRateDao">
+	<resultMap type="exchangeRate" id="exchangeRateResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--人民币 -->
+		<result property="rmb" column="C_RMB" />
+		<!--对新西兰币汇率 -->
+		<result property="nzdRate" column="C_NZD_RATE" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_RMB,
+		o.C_NZD_RATE
+	</sql>
+
+	<sql id="searchConditionSql">
+
+	</sql>
+
+	<select id="listExchangeRateByPage" resultMap="exchangeRateResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM exchange_rate o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listExchangeRateByPageCount" resultType="int">
+		SELECT count(1) FROM exchange_rate o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getExchangeRateById" resultMap="exchangeRateResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM exchange_rate o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<select id="getExchangeRate" resultMap="exchangeRateResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM exchange_rate o
+		limit 0,1
+	</select>
+
+	<insert id="add" parameterType="exchangeRate">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO exchange_rate
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_RMB,
+		C_NZD_RATE
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{rmb},
+		#{nzdRate}
+		)
+	</insert>
+
+	<update id="update" parameterType="exchangeRate" >
+		UPDATE exchange_rate SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_RMB = #{rmb},
+		C_NZD_RATE = #{nzdRate}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM exchange_rate 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

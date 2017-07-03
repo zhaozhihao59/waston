@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.auth.dao.IDepartDao">
+	<resultMap type="depart" id="departResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--是否可删除标记：0-可删除，1-不可删除 -->
+		<result property="isDelete" column="C_IS_DELETE" />
+		<!--部门名称 -->
+		<result property="name" column="C_NAME" />
+		<!--父级部门ID -->
+		<result property="parentId" column="C_PARENT_ID" />
+		<!--父级部门ID -->
+		<result property="isParent" column="C_IS_PARENT" />
+		<!--节点级别：1-一级节点，2-二级节点，3-三级节点…… -->
+		<result property="level" column="C_LEVEL" />
+		<!--部门备注 -->
+		<result property="note" column="C_NOTE" />
+		<!--部门负责员工ID -->
+		<result property="manageId" column="C_MANAGE_ID" />
+		<!--排序参数：数字越小越靠前 -->
+		<result property="sort" column="C_SORT" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_IS_DELETE,
+		o.C_NAME,
+		o.C_PARENT_ID,
+		o.C_LEVEL,
+		o.C_NOTE,
+		o.C_MANAGE_ID,
+		o.C_SORT,
+		o.C_IS_PARENT
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.name != null and condition.name != ''">
+			AND o.C_NAME like concat('%',#{condition.name},'%') 
+		</if>
+		<if test="condition.parentId != null and condition.parentId != ''">
+			AND o.C_PARENT_ID like concat('%',#{condition.parentId},'%') 
+		</if>
+		<if test="condition.note != null and condition.note != ''">
+			AND o.C_NOTE like concat('%',#{condition.note},'%') 
+		</if>
+		<if test="condition.manageId != null and condition.manageId != ''">
+			AND o.C_MANAGE_ID like concat('%',#{condition.manageId},'%') 
+		</if>
+
+	</sql>
+
+	<select id="listDepartByPage" resultMap="departResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM auth_depart o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	
+	<select id="listDepartByPageCount" resultType="int">
+		SELECT count(1) FROM auth_depart o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	
+	<select id="listAllDepart" resultMap="departResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM auth_depart o
+		WHERE 1=1
+	</select>
+
+	<!--根据部门ID 查找部门 -->
+	<select id="getDepartById" resultMap="departResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM auth_depart o
+		WHERE o.ID = #{id}
+	</select>
+	<!-- 根据name查询部门id -->
+	<select id="getDepartByName" resultMap="departResultMap">
+		SELECT 
+		<include refid="allColumnSql"/>
+		FROM auth_depart o
+		WHERE o.C_DELETE_FLAG = 0
+		AND o.C_NAME = #{dname}
+	</select>
+
+	<insert id="add" parameterType="depart">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO auth_depart(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_DELETE_FLAG,
+		C_IS_DELETE,
+		C_NAME,
+		C_PARENT_ID,
+		C_LEVEL,
+		C_NOTE,
+		C_MANAGE_ID,
+		C_SORT
+		)
+		VALUES
+		(#{id},
+		#{createBy},
+		SYSDATE(),
+		0,
+		#{isDelete},
+		#{name},
+		#{parentId},
+		#{level},
+		#{note},
+		#{manageId},
+		#{sort}
+		)
+	</insert>
+
+	<update id="update" parameterType="depart" >
+		UPDATE auth_depart SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_DELETE_FLAG = #{deleteFlag},
+		C_IS_DELETE = #{isDelete},
+		C_NAME = #{name},
+		C_PARENT_ID = #{parentId},
+		C_LEVEL = #{level},
+		C_NOTE = #{note},
+		C_MANAGE_ID = #{manageId},
+		C_SORT = #{sort}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM auth_depart 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- 根据上级ID查询部门列表 -->
+	<select id="listDepartByPid" resultMap="departResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		from auth_depart o
+		WHERE o.C_DELETE_FLAG = 0 
+		AND o.C_PARENT_ID = #{value}
+		ORDER BY o.C_SORT ASC 
+	</select>
+	
+	<!-- 修改是否为父节点，是否可删除 -->
+	<update id="updateIsParentDeleteById" parameterType="java.lang.String">
+		UPDATE auth_depart c SET 
+		c.C_IS_PARENT = #{isParent}, 
+		c.C_IS_DELETE = #{isDelete} 
+		WHERE c.ID = #{id}
+	</update>
+	
+	<select id="getMaxCodeNum" parameterType="java.lang.String"
+		resultType="String">
+		SELECT MAX(c.C_SORT) FROM auth_depart c WHERE
+		c.C_PARENT_ID=#{value}
+	</select>
+	
+ 	<select id="getCodeNum" parameterType="java.lang.String" resultType="String">
+		SELECT C.C_SORT FROM auth_depart C WHERE
+		C.id=#{id}
+	</select>
+
+	<insert id="doAddDepartNew" parameterType="depart">
+		INSERT INTO auth_depart(ID,C_CREATE_BY,C_CREATE_DATE,C_UPDATE_BY,C_UPDATE_DATE,C_DELETE_FLAG,C_IS_DELETE,C_NAME,C_PARENT_ID,C_LEVEL,C_NOTE,C_MANAGE_ID,C_SORT)
+		VALUES
+		(SYS_GUID(),#{createBy},#{createDate},#{updateBy},#{updateDate},0,#{isDelete},#{name},#{parentId},#{level},#{note},#{manageId},#{sort})
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="doUpdateDepart" parameterType="Map">
+		UPDATE auth_depart SET C_name = #{name} , C_sort = #{sort}, C_note = #{note} WHERE
+		id = #{id}
+	</update>
+	
+	<delete id="delDepartById" parameterType="java.lang.String">
+		delete from auth_depart where id = #{id}
+	</delete>
+	<!-- 设置用户主管 -->
+	<update id="doManagerContr">
+		UPDATE auth_depart SET C_MANAGE_ID = #{sel}
+		 WHERE ID = #{manageId}
+	</update>
+		<!-- 设置取消用户主管 -->
+	<update id="doManagerNoContr">
+		UPDATE auth_depart SET C_MANAGE_ID = #{sel}
+		 WHERE ID = #{manageId}
+	</update>
+</mapper>

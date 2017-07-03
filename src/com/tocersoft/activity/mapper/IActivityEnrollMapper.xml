@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.activity.dao.IActivityEnrollDao">
+	<resultMap type="activityEnroll" id="activityEnrollResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--活动ID -->
+		<result property="activityId" column="C_ACTIVITY_ID" />
+		<!--活动名称 -->
+		<result property="activityName" column="C_ACTIVITY_NAME" />
+		<!--姓名 -->
+		<result property="name" column="C_NAME" />
+		<!--手机号码  -->
+		<result property="mobile" column="C_MOBILE" />
+		<!--邮箱 -->
+		<result property="email" column="C_EMAIL" />
+		<!--电话 -->
+		<result property="tel" column="C_TEL" />
+		<!--邮箱 -->
+		<result property="companyName" column="C_COMPANY_NAME" />
+		<!--邮箱 -->
+		<result property="positionName" column="C_POSITION_NAME" />
+		
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_ACTIVITY_ID,
+		o.C_ACTIVITY_NAME,
+		o.C_NAME,
+		o.C_MOBILE,
+		o.C_EMAIL,
+		o.C_TEL,
+		o.C_COMPANY_NAME,
+		o.C_POSITION_NAME
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.key != null and condition.key != ''">
+			AND (o.C_ACTIVITY_NAME like '%${condition.key}%' or
+				 o.C_NAME like '%${condition.key}%' or
+				 o.C_MOBILE like '%${condition.key}%' or
+				 o.C_EMAIL like '%${condition.key}%'
+			)
+		</if>
+		<if test="condition.activityId != null and condition.activityId != ''">
+			AND o.C_ACTIVITY_ID like '%${condition.activityId}%' 
+		</if>
+		<if test="condition.activityName != null and condition.activityName != ''">
+			AND o.C_ACTIVITY_NAME like '%${condition.activityName}%' 
+		</if>
+		<if test="condition.name != null and condition.name != ''">
+			AND o.C_NAME like '%${condition.name}%' 
+		</if>
+		<if test="condition.mobile != null and condition.mobile != ''">
+			AND o.C_MOBILE like '%${condition.mobile}%' 
+		</if>
+		<if test="condition.email != null and condition.email != ''">
+			AND o.C_EMAIL like '%${condition.email}%' 
+		</if>
+
+	</sql>
+
+	<select id="listActivityEnrollByPage" resultMap="activityEnrollResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM activity_enroll o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+		order by o.C_CREATE_DATE desc
+	</select>
+	<select id="listActivityEnrollByPageCount" resultType="int">
+		SELECT count(1) FROM activity_enroll o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getActivityEnrollById" resultMap="activityEnrollResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM activity_enroll o
+		WHERE o.ID = #{id}
+	</select>
+
+	<insert id="add" parameterType="activityEnroll">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO activity_enroll
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_ACTIVITY_ID,
+		C_ACTIVITY_NAME,
+		C_NAME,
+		C_MOBILE,
+		C_EMAIL
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{activityId},
+		#{activityName},
+		#{name},
+		#{mobile},
+		#{email}
+		)
+	</insert>
+
+	<update id="update" parameterType="activityEnroll" >
+		UPDATE activity_enroll SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_ACTIVITY_ID = #{activityId},
+		C_ACTIVITY_NAME = #{activityName},
+		C_NAME = #{name},
+		C_MOBILE = #{mobile},
+		C_EMAIL = #{email}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM activity_enroll 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<insert id="insertRegeister" parameterType="activityEnroll">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO activity_enroll
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_ACTIVITY_ID,
+		C_ACTIVITY_NAME,
+		C_NAME,
+		C_MOBILE,
+		C_EMAIL,
+		C_TEL,
+		C_COMPANY_NAME,
+		C_POSITION_NAME
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{activityId},
+		#{activityName},
+		#{name},
+		#{mobile},
+		#{email},
+		#{tel},
+		#{companyName},
+		#{positionName}
+		)
+	</insert>
+	
+	<select id="checkEnrollEmail" resultType="int">
+		SELECT COUNT(1) FROM activity_enroll o
+		WHERE o.C_ACTIVITY_ID=#{activityId} AND o.C_EMAIL=#{email}
+	</select>
+	<select id="checkEnrollMobile" resultType="int">
+		SELECT COUNT(1) FROM activity_enroll o
+		WHERE o.C_ACTIVITY_ID=#{activityId} AND o.C_MOBILE=#{mobile}
+	</select>
+
+</mapper>

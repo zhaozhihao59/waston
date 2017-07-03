@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.member.dao.IMemTeamDao">
+	<resultMap type="memTeam" id="memTeamResultMap">
+		<!--会员ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--团体名称 -->
+		<result property="name" column="C_NAME" />
+		<!--0-业余团体；1-专业团体 -->
+		<result property="type" column="C_TYPE" />
+		<!--团队描述 -->
+		<result property="desc" column="C_DESC" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_NAME,
+		o.C_TYPE,
+		o.C_DESC
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.name != null and condition.name != ''">
+			AND o.C_NAME like '%${condition.name}%' 
+		</if>
+		<if test="condition.desc != null and condition.desc != ''">
+			AND o.C_DESC like '%${condition.desc}%' 
+		</if>
+
+	</sql>
+
+	<select id="listMemTeamByPage" resultMap="memTeamResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_team o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listMemTeamByPageCount" resultType="int">
+		SELECT count(1) FROM mem_team o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getMemTeamById" resultMap="memTeamResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_team o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<!-- 用于自动补全控件 -->
+	<select id="listMemTeamByKey" resultMap="memTeamResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_team o
+		WHERE  o.C_NAME like '%${key}%' 
+	</select>
+	
+	<!-- 报名时新增车队 -->
+	<insert id="addMemTeamByEnroll" parameterType="memTeam">
+		INSERT INTO mem_team
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_NAME,
+		C_TYPE,
+		C_DESC
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{name},
+		#{type},
+		#{desc}
+		)
+	</insert>
+
+	<insert id="add" parameterType="memTeam">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO mem_team
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_NAME,
+		C_TYPE,
+		C_DESC
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{name},
+		#{type},
+		#{desc}
+		)
+	</insert>
+
+	<update id="update" parameterType="memTeam" >
+		UPDATE mem_team SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_NAME = #{name},
+		C_TYPE = #{type},
+		C_DESC = #{desc}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM mem_team 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

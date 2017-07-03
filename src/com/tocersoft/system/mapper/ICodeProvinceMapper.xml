@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.system.dao.ICodeProvinceDao">
+	<resultMap type="codeProvince" id="provinceResultMap">
+		<result column="idx" property="idx" />
+		<result column="province" property="province"/>
+		
+	</resultMap>
+
+	<sql id="allColumnSql">
+		<![CDATA[
+			c.sidoIdx as idx,
+			c.sido as province
+		]]>
+	</sql>
+	
+	<!-- 查询所有省份 -->
+	<select id="ListAllProvince" resultMap="provinceResultMap">
+		SELECT distinct 
+		<include refid="allColumnSql"/> 
+		FROM code_address c 
+	</select>
+	
+	<!-- 根据ID查询省份 -->
+	<select id="getProvinceByCode" resultMap="provinceResultMap">
+		SELECT distinct 
+		<include refid="allColumnSql"/> 
+		FROM code_address c 
+		WHERE c.sidoIdx = #{pid}
+	</select>
+	
+</mapper>

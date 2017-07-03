@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.cms.dao.ICmsAdvPhotoDao">
+	<resultMap type="cmsAdvPhoto" id="advPhotoResultMap" extends="BaseBusEntity.entity">
+		<result column="NAME" property="name" />
+		<result column="FILE_NAME" property="fileName" />
+		<result column="PATH" property="path"/>
+		<result column="LINK_URL" property="linkUrl"/>
+		<result column="NOTE" property="note"/>
+		<result column="ADV_ID" property="advId"/>
+		<result column="SORT" property="sort"/>
+	</resultMap>
+	
+	<sql id="allColumnSql">
+		<![CDATA[
+			a.ID, 
+			a.NAME, 
+			a.FILE_NAME, 
+			a.PATH, 
+			a.LINK_URL, 
+			a.NOTE, 
+			a.ADV_ID, 
+			a.SORT  
+		]]>
+	</sql>
+	
+	<!-- 分页 -->
+ 	<select id="listAdvPhotoByPage" resultMap="advPhotoResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		from cms_adv_photo a 
+		WHERE a.C_DELETE_FLAG = 0 
+		AND a.ADV_ID = #{advId} 
+		ORDER BY a.SORT ASC 
+	</select>
+	
+	<!-- 总数 -->
+	<select id="listAdvPhotoByPageCount" resultType="int">
+		SELECT 
+		COUNT(1) 
+		from cms_adv_photo a 
+		WHERE a.C_DELETE_FLAG = 0 
+		AND a.ADV_ID = #{advId} 
+	</select> 
+	
+	<!-- 根据ID查询详细信息 -->
+	<select id="getAdvPhotoById" resultMap="advPhotoResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		from cms_adv_photo a 
+		WHERE a.C_DELETE_FLAG = 0 AND a.ID = #{id}
+	</select>
+	
+	<!-- 添加 -->
+	<insert id="addAdvPhoto" parameterType="cmsAdvPhoto">
+		INSERT INTO cms_adv_photo (
+			ID, 
+			NAME, 
+			FILE_NAME, 
+			PATH, 
+			LINK_URL, 
+			NOTE, 
+			ADV_ID, 
+			SORT, 
+			C_DELETE_FLAG
+		)
+		values(
+			#{id},
+			#{name},
+			#{fileName},
+			#{path},
+			#{linkUrl},
+			#{note},
+			#{advId},
+			#{sort},
+			0
+		)
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="updateAdvPhoto" parameterType="cmsAdvPhoto">
+		UPDATE cms_adv_photo a SET 
+		a.NAME = #{name}, 
+		a.FILE_NAME = #{fileName}, 
+		a.PATH = #{path}, 
+		a.LINK_URL = #{linkUrl}, 
+		a.NOTE = #{note}, 
+		a.ADV_ID = #{advId}, 
+		a.SORT = #{sort}  
+		WHERE a.ID = #{id}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="removeAdvPhotoById">
+		DELETE FROM cms_adv_photo 
+		WHERE ID = #{id} 
+	</delete>
+	
+	<!-- 根据广告位ID查询广告位图片 -->
+ 	<select id="listAdvPhotoByAdvId" resultMap="advPhotoResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		from cms_adv_photo a 
+		WHERE a.C_DELETE_FLAG = 0 
+		AND a.ADV_ID = #{advId} 
+		ORDER BY a.SORT ASC 
+	</select>
+	
+</mapper>

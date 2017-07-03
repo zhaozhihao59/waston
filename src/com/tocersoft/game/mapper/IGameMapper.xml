@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.game.dao.IGameDao">
+	<resultMap type="game" id="gameResultMap">
+		<!--会员ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--赛事编号 -->
+		<result property="gameNo" column="C_GAME_NO" />
+		<!--赛事名称 -->
+		<result property="gameName" column="C_GAME_NAME" />
+		<!--赛事状态：0-预告，1-报名中，2-报名结束等待比赛，3-比赛中，4-已过期 -->
+		<result property="state" column="C_STATE" />
+		<!--报名开始日期 -->
+		<result property="enrollBeginDate" column="C_ENROLL_BEGIN_DATE" />
+		<!--报名结束日期 -->
+		<result property="enrollEndDate" column="C_ENROLL_END_DATE" />
+		<!--比赛开始时间（字符串输入） -->
+		<result property="gameDateStr" column="C_GAME_DATE_STR" />
+		<!-- 比赛地址-->
+		<result property="gameAddress" column="C_GAME_ADDRESS" />
+		<!-- 比赛城市-->
+		<result property="gameCity" column="C_GAME_CITY" />
+		<!--赛事大图 -->
+		<result property="gamePhoto" column="C_GAME_PHOTO" />
+		<!--赛事列表图  -->
+		<result property="gamePhotoTo" column="C_GAME_PHOTO_TO" />
+		<!--赛事介绍 - 文本编辑器 -->
+		<result property="descHtml" column="C_DESC_HTML" />
+		<!--赛事须知 - 文本编辑器 -->
+		<result property="noteHtml" column="C_NOTE_HTML" />
+		<!--日程安排 - 文本编辑器 -->
+		<result property="scheduleHtml" column="C_SCHEDULE_HTML" />
+		<!--赛道图 - 文本编辑器 -->
+		<result property="trackHtml" column="C_TRACK_HTML" />
+		<!--录取奖励 - 文本编辑器 -->
+		<result property="rewardHtml" column="C_REWARD_HTML" />
+		<!--交通住宿 - 文本编辑器 -->
+		<result property="transportHtml" column="C_TRANSPORT_HTML" />
+		<!--联系方式 - 文本编辑器 -->
+		<result property="contactHtml" column="C_CONTACT_HTML" />
+		<!-- 比赛月份-->
+		<result property="gameMonth" column="C_GAME_MONTH" />
+		<!-- 显示排序-->
+		<result property="sort" column="C_SORT" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_GAME_NO,
+		o.C_GAME_NAME,
+		o.C_STATE,
+		o.C_ENROLL_BEGIN_DATE,
+		o.C_ENROLL_END_DATE,
+		o.C_GAME_DATE_STR,
+		o.C_GAME_ADDRESS,
+		o.C_GAME_CITY,
+		o.C_GAME_PHOTO,
+		o.C_GAME_PHOTO_TO,
+		o.C_DESC_HTML,
+		o.C_NOTE_HTML,
+		o.C_SCHEDULE_HTML,
+		o.C_TRACK_HTML,
+		o.C_REWARD_HTML,
+		o.C_TRANSPORT_HTML,
+		o.C_CONTACT_HTML,
+		o.C_GAME_MONTH,
+		o.C_SORT
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.gameName != null and condition.gameName != ''">
+			AND o.C_GAME_NAME like '%${condition.gameName}%' 
+		</if>
+		<if test="condition.gameDateStr != null and condition.gameDateStr != ''">
+			AND o.C_GAME_DATE_STR like '%${condition.gameDateStr}%' 
+		</if>
+		<if test="condition.gameAddress != null and condition.gameAddress != ''">
+			AND o.C_GAME_ADDRESS like '%${condition.gameAddress}%' 
+		</if>
+		<if test="condition.descHtml != null and condition.descHtml != ''">
+			AND o.C_DESC_HTML like '%${condition.descHtml}%' 
+		</if>
+		<if test="condition.noteHtml != null and condition.noteHtml != ''">
+			AND o.C_NOTE_HTML like '%${condition.noteHtml}%' 
+		</if>
+		<if test="condition.state != null ">
+			AND o.C_STATE = #{condition.state} 
+		</if>
+		<if test="condition.scheduleHtml != null and condition.scheduleHtml != ''">
+			AND o.C_SCHEDULE_HTML like '%${condition.scheduleHtml}%' 
+		</if>
+		<if test="condition.trackHtml != null and condition.trackHtml != ''">
+			AND o.C_TRACK_HTML like '%${condition.trackHtml}%' 
+		</if>
+		<if test="condition.rewardHtml != null and condition.rewardHtml != ''">
+			AND o.C_REWARD_HTML like '%${condition.rewardHtml}%' 
+		</if>
+		<if test="condition.transportHtml != null and condition.transportHtml != ''">
+			AND o.C_TRANSPORT_HTML like '%${condition.transportHtml}%' 
+		</if>
+		<if test="condition.contactHtml != null and condition.contactHtml != ''">
+			AND o.C_CONTACT_HTML like '%${condition.contactHtml}%' 
+		</if>
+
+	</sql>
+
+	<select id="listGameByPage" resultMap="gameResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM game o 
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+		ORDER BY o.C_SORT ASC, o.C_CREATE_DATE DESC
+	</select>
+	<select id="listGameByPageCount" resultType="int">
+		SELECT count(1) FROM game o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getGameById" resultMap="gameResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM game o
+		WHERE o.ID = #{id}
+	</select>
+
+	<insert id="add" parameterType="game">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO game
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_GAME_NO,
+		C_GAME_NAME,
+		C_STATE,
+		C_ENROLL_BEGIN_DATE,
+		C_ENROLL_END_DATE,
+		C_GAME_DATE_STR,
+		C_GAME_ADDRESS,
+		C_GAME_CITY,
+		C_GAME_PHOTO,
+		C_GAME_PHOTO_TO,
+		C_DESC_HTML,
+		C_NOTE_HTML,
+		C_SCHEDULE_HTML,
+		C_TRACK_HTML,
+		C_REWARD_HTML,
+		C_TRANSPORT_HTML,
+		C_CONTACT_HTML,
+		C_GAME_MONTH,
+		C_SORT
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{gameNo},
+		#{gameName},
+		#{state},
+		#{enrollBeginDate},
+		#{enrollEndDate},
+		#{gameDateStr},
+		#{gameAddress},
+		#{gameCity},
+		#{gamePhoto},
+		#{gamePhotoTo},
+		#{descHtml},
+		#{noteHtml},
+		#{scheduleHtml},
+		#{trackHtml},
+		#{rewardHtml},
+		#{transportHtml},
+		#{contactHtml},
+		#{gameMonth},
+		#{sort}
+		)
+	</insert>
+
+	<update id="update" parameterType="game" >
+		UPDATE game SET 
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_GAME_NO = #{gameNo},
+		C_GAME_NAME = #{gameName},
+		C_STATE = #{state},
+		C_ENROLL_BEGIN_DATE = #{enrollBeginDate},
+		C_ENROLL_END_DATE = #{enrollEndDate},
+		C_GAME_DATE_STR = #{gameDateStr},
+		C_GAME_ADDRESS = #{gameAddress},
+		C_GAME_CITY = #{gameCity},
+		C_DESC_HTML = #{descHtml},
+		C_NOTE_HTML = #{noteHtml},
+		C_SCHEDULE_HTML = #{scheduleHtml},
+		C_TRACK_HTML = #{trackHtml},
+		C_REWARD_HTML = #{rewardHtml},
+		C_TRANSPORT_HTML = #{transportHtml},
+		C_CONTACT_HTML = #{contactHtml},
+		C_GAME_MONTH = #{gameMonth},
+		C_SORT = #{sort}
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="updatePhoto">
+		UPDATE game SET
+		C_UPDATE_DATE = SYSDATE(),
+		C_GAME_PHOTO = #{photo} 
+		WHERE ID = #{gameId}
+	</update>
+	
+	<update id="updatePhotoTo">
+		UPDATE game SET
+		C_UPDATE_DATE = SYSDATE(),
+		C_GAME_PHOTO_TO = #{photoTo} 
+		WHERE ID = #{gameId}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM game 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

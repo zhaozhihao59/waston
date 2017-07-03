@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IProductWeightRangeDao">
+	<resultMap type="productWeightRange" id="productWeightRangeResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--对应的产品包装ID -->
+		<result property="packageId" column="C_PACKAGE_ID" />
+		<!--基本体积 -->
+		<result property="baseQt" column="C_BASE_QT" />
+		<!--是否只以重量计算运费 -->
+		<result property="isOnlyWeight" column="C_IS_ONLY_WEIGHT" />
+		<!--单步体积 -->
+		<result property="stepQt" column="C_STEP_QT" />
+		<!--单步重量 -->
+		<result property="stepWeight" column="C_STEP_WEIGHT" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_PACKAGE_ID,
+		o.C_BASE_QT,
+		o.C_IS_ONLY_WEIGHT,
+		o.C_STEP_QT,
+		o.C_STEP_WEIGHT
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.packageId != null and condition.packageId != ''">
+			AND o.C_PACKAGE_ID like '%${condition.packageId}%' 
+		</if>
+		<if test="condition.isOnlyWeight != null and condition.isOnlyWeight != ''">
+			AND o.C_IS_ONLY_WEIGHT like '%${condition.isOnlyWeight}%' 
+		</if>
+
+	</sql>
+
+	<select id="listProductWeigthRangeByPage" resultMap="productWeightRangeResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_weight_range o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listProductWeigthRangeByPageCount" resultType="int">
+		SELECT count(1) FROM product_weight_range o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getProductWeigthRangeById" resultMap="productWeightRangeResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_weight_range o
+		WHERE o.ID = #{id}
+	</select>
+
+	<insert id="add" parameterType="productWeightRange">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO product_weight_range
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_PACKAGE_ID,
+		C_BASE_QT,
+		C_IS_ONLY_WEIGHT,
+		C_STEP_QT,
+		C_STEP_WEIGHT
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{packageId},
+		#{baseQt},
+		#{isOnlyWeight},
+		#{stepQt},
+		#{stepWeight}
+		)
+	</insert>
+
+	<update id="update" parameterType="productWeightRange" >
+		UPDATE product_weight_range SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_PACKAGE_ID = #{packageId},
+		C_BASE_QT = #{baseQt},
+		C_IS_ONLY_WEIGHT = #{isOnlyWeight},
+		C_STEP_QT = #{stepQt},
+		C_STEP_WEIGHT = #{stepWeight}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM product_weight_range 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

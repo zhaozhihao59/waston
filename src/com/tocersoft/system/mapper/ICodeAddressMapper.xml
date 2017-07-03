@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.system.dao.ICodeAddressDao">
+	<resultMap type="codeAddress" id="addressResultMap">
+		<result column="idx" property="idx" />
+		<result column="sido" property="sido"/>
+		<result column="gugun" property="gugun" />
+		<result column="dong" property="dong"/>
+		<result column="sidoIdx" property="sidoIdx" />
+		<result column="gugunIdx" property="gugunIdx"/>
+	</resultMap>
+	
+	<sql id="allColumnSql">
+		<![CDATA[
+			c.idx,
+			c.sido,
+			c.gugun,
+			c.dong,
+			c.sidoIdx,
+			c.gugunIdx
+		]]>
+	</sql>
+	
+	<!-- 根据城市ID查询得到该城市所有区县 -->
+	<select id="ListAddrByCid" resultMap="addressResultMap">
+		SELECT 
+		<include refid="allColumnSql"/>
+		FROM code_address c 
+		WHERE c.gugunIdx = #{cid}
+	</select>
+	
+	<!-- 根据省 市 区查询详情 -->
+	<select id="selProvinceCityDistrict" resultMap="addressResultMap">
+		SELECT 
+		<include refid="allColumnSql"/>
+		FROM code_address c 
+		WHERE 1=1
+		<if test=" null != procince and procince != '' ">
+			and c.sido=#{procince}
+		</if>
+		<if test=" null != city and city != '' ">
+			and c.gugun=#{city}
+		</if>
+		<if test=" null != district and district != '' ">
+			and c.dong like CONCAT('%',#{district},'%')
+		</if>
+	</select>
+</mapper>

@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IProductDao">
+	<resultMap type="product" id="productResultMap">
+		<!--产品id，不允许重复 -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除：0-不删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!-- 产品货号 -->
+		<result property="productNo" column="C_PRODUCT_NO" />
+		<!--类别id -->
+		<result property="categoryId" column="C_CATEGORY_ID" />
+		<!--品牌ID -->
+		<result property="brandId" column="C_BRAND_ID" />
+		<!--产品名称 -->
+		<result property="name" column="C_NAME" />
+		<!--产品名称（英文） -->
+		<result property="nameEn" column="C_NAME_EN" />
+		<!--默认市场价 -->
+		<result property="marketPrice" column="C_MARKET_PRICE" />
+		<!--默认平台价 -->
+		<result property="unitPrice" column="C_UNIT_PRICE" />
+		<!--默认平台价(英文) -->
+		<result property="unitPriceEn" column="C_UNIT_PRICE_EN" />
+		<!--产品首图url -->
+		<result property="imageUrl" column="C_IMAGE_URL" />
+		<!--搜索关键字 -->
+		<result property="keyWords" column="C_KEY_WORDS" />
+		<!--搜索关键字(英文) -->
+		<result property="keyWordsEn" column="C_KEY_WORDS_EN" />
+		<!--产品简短描述 -->
+		<result property="shortDesc" column="C_SHORT_DESC" />
+		<!--产品简短描述(英文) -->
+		<result property="shortDescEn" column="C_SHORT_DESC_EN" />
+		<!--产品详情内容 -->
+		<result property="htmlContent" column="C_HTML_CONTENT" />
+		<!--产品详情内容(英文) -->
+		<result property="htmlContentEn" column="C_HTML_CONTENT_EN" />
+		<!--产品视频地址 -->
+		<result property="videoUrl" column="C_VIDEO_URL" />
+		<!--品牌名称 -->
+		<result property="brandName" column="C_BRAND_NAME" />
+		<!-- 类别名称 -->
+		<result property="categoryName" column="C_CATEGORY_NAME"/>
+		<!--是否促销 -->
+		<result property="isPromotion" column="C_IS_PROMOTION" />
+		<!--折扣 -->
+		<result property="discount" column="C_DISCOUNT" />
+		<!--是否推荐 -->
+		<result property="isRecommend" column="C_IS_RECOMMEND" />
+		<!--是否为明星产品 -->
+		<result property="isStarProduct" column="C_IS_STARPRODUCT" />
+		<!--产品销量 -->
+		<result property="sales" column="sales" />
+		<!--  产品属性 -->
+		<result property="attr" column="C_ATTR"/>
+		<!-- 产品属性值 -->
+		<result property="attrVal" column="C_ATTR_VAL"/>
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_PRODUCT_NO,
+		o.C_CATEGORY_ID,
+		o.C_BRAND_ID,
+		o.C_NAME,
+		o.C_NAME_EN,
+		o.C_MARKET_PRICE,
+		o.C_UNIT_PRICE,
+		o.C_UNIT_PRICE_EN,
+		o.C_IMAGE_URL,
+		o.C_KEY_WORDS,
+		o.C_KEY_WORDS_EN,
+		o.C_SHORT_DESC,
+		o.C_SHORT_DESC_EN,
+		o.C_HTML_CONTENT,
+		o.C_HTML_CONTENT_EN,
+		o.C_IS_PROMOTION,
+		o.C_DISCOUNT,
+		o.C_IS_RECOMMEND,
+		o.C_IS_STARPRODUCT
+	</sql>
+	
+	<sql id="allColumnSqlJoin">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_PRODUCT_NO,
+		o.C_CATEGORY_ID,
+		o.C_BRAND_ID,
+		o.C_NAME,
+		o.C_NAME_EN,
+		o.C_MARKET_PRICE,
+		o.C_UNIT_PRICE,
+		o.C_UNIT_PRICE_EN,
+		o.C_IMAGE_URL,
+		o.C_KEY_WORDS,
+		o.C_KEY_WORDS_EN,
+		o.C_SHORT_DESC,
+		o.C_SHORT_DESC_EN,
+		o.C_HTML_CONTENT,
+		o.C_HTML_CONTENT_EN,
+		o.C_VIDEO_URL,
+		o.C_IS_PROMOTION,
+		o.C_DISCOUNT,
+		o.C_IS_RECOMMEND,
+		o.C_IS_STARPRODUCT,
+		b.C_NAME AS C_BRAND_NAME
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.categoryId != null and condition.categoryId != ''">
+			AND o.C_CATEGORY_ID in (select id from product_category where FIND_IN_SET(id, getProCatListByPid('${condition.categoryId}')))
+		</if>
+		<if test="condition.brandId != null and condition.brandId != ''">
+			AND o.C_BRAND_ID = '${condition.brandId}' 
+		</if>
+		<if test="condition.name != null and condition.name != ''">
+			AND o.C_NAME like '%${condition.name}%' 
+		</if>
+		<if test="condition.nameEn != null and condition.nameEn != ''">
+			AND o.C_NAME_EN like '%${condition.nameEn}%' 
+		</if>
+		<if test="condition.imageUrl != null and condition.imageUrl != ''">
+			AND o.C_IMAGE_URL like '%${condition.imageUrl}%' 
+		</if>
+		<if test="condition.keyWords != null and condition.keyWords != ''">
+			AND o.C_KEY_WORDS like '%${condition.keyWords}%' 
+		</if>
+		<if test="condition.keyWordsEn != null and condition.keyWordsEn != ''">
+			AND o.C_KEY_WORDS_EN like '%${condition.keyWordsEn}%' 
+		</if>
+		<if test="condition.shortDesc != null and condition.shortDesc != ''">
+			AND o.C_SHORT_DESC like '%${condition.shortDesc}%' 
+		</if>
+		<if test="condition.shortDescEn != null and condition.shortDescEn != ''">
+			AND o.C_SHORT_DESC_EN like '%${condition.shortDescEn}%' 
+		</if>
+		<if test="condition.htmlContent != null and condition.htmlContent != ''">
+			AND o.C_HTML_CONTENT like '%${condition.htmlContent}%' 
+		</if>
+		<if test="condition.htmlContentEn != null and condition.htmlContentEn != ''">
+			AND o.C_HTML_CONTENT_EN like '%${condition.htmlContentEn}%' 
+		</if>
+		<if test="condition.videoUrl != null and condition.videoUrl != ''">
+			AND o.C_VIDEO_URL like '%${condition.videoUrl}%' 
+		</if>
+		<if test="condition.minPrice > 0">
+			AND o.C_UNIT_PRICE &gt;= #{condition.minPrice}
+		</if>
+		<if test="condition.maxPrice > 0">
+			AND o.C_UNIT_PRICE &lt;= #{condition.maxPrice}
+		</if>
+		<if test="condition.isPromotion != null">
+			AND o.C_IS_PROMOTION = #{condition.isPromotion}
+		</if>
+		<if test="condition.isRecommend != null">
+			AND o.C_IS_RECOMMEND = #{condition.isRecommend}
+		</if>
+		<if test="condition.isStarProduct != null">
+			AND o.C_IS_STARPRODUCT = #{condition.isStarProduct}
+		</if>
+	</sql>
+
+	<select id="listProductByPage" resultMap="productResultMap">
+		SELECT <include refid="allColumnSqlJoin"/>, IFNULL(SUM(i.C_NUM),0) sales
+		FROM product o
+		LEFT JOIN product_brand b ON o.C_BRAND_ID = b.ID 
+		LEFT JOIN order_sell_item i ON o.ID = i.C_PRODUCT_ID
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+		GROUP BY o.ID
+		ORDER BY  o.C_UPDATE_DATE DESC 
+		<if test="condition.sort == 'unitPrice'">
+			 , o.C_UNIT_PRICE DESC
+		</if>
+		<if test="condition.sort == 'sales'">
+			 , sales DESC
+		</if>
+	   
+	</select>
+	<select id="listProductByPageCount" resultType="int">
+		SELECT count(1) FROM product o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	
+	
+	<select id="listProductAndAttrVal" resultMap="productResultMap">
+		SELECT <include refid="allColumnSqlJoin"/> ,v.C_LINE_ATTRVAL_NAME_CN as attrVal
+		FROM product o 
+		LEFT JOIN product_attr a ON a.C_PRODUCT_ID = o.ID
+		LEFT JOIN product_attr_value v ON a.ID = v.C_PRODUCT_ATTR_ID 
+		LEFT JOIN product_brand b ON o.C_BRAND_ID = b.ID 
+		WHERE v.C_ATTR_NAME = '产品规格'
+	</select>
+
+	<select id="getProductById" resultMap="productResultMap">
+		SELECT <include refid="allColumnSqlJoin"/>
+		FROM product o 
+		LEFT JOIN product_brand b ON o.C_BRAND_ID = b.ID 
+		WHERE o.ID = #{id}
+	</select>
+	
+	<select id="getProductByNo" resultMap="productResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product o 
+		WHERE o.C_PRODUCT_NO = #{productNo}
+	</select>
+	
+	<select id="listProductByCategoryId" resultMap="productResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product o
+		WHERE o.C_CATEGORY_ID = #{categoryId}
+	</select>
+	
+	<select id="listProductByBrandId" resultMap="productResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product o
+		WHERE o.C_BRAND_ID = #{brandId}
+	</select>
+	
+	<select id="listProduct" resultMap="productResultMap">
+		SELECT p.ID as ID, p.C_NAME as C_NAME,b.C_NAME as C_BRAND_NAME,c.C_NAME as C_CATEGORY_NAME,
+			v.C_ATTR_NAME as C_ATTR,v.C_LINE_ATTRVAL_NAME_CN as C_ATTR_VAL,p.C_UNIT_PRICE as C_UNIT_PRICE
+		FROM product p
+		LEFT JOIN product_category c ON p.C_CATEGORY_ID = c.ID
+		LEFT JOIN product_brand b ON p.C_BRAND_ID = b.ID
+		LEFT JOIN product_attr a ON p.ID = a.C_PRODUCT_ID
+		LEFT JOIN product_attr_value v ON a.ID = v.C_PRODUCT_ATTR_ID
+	</select>
+
+	<insert id="add" parameterType="product">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO product
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_PRODUCT_NO,
+		C_CATEGORY_ID,
+		C_BRAND_ID,
+		C_NAME,
+		C_NAME_EN,
+		C_MARKET_PRICE,
+		C_UNIT_PRICE,
+		C_UNIT_PRICE_EN,
+		C_IMAGE_URL,
+		C_KEY_WORDS,
+		C_KEY_WORDS_EN,
+		C_SHORT_DESC,
+		C_SHORT_DESC_EN,
+		C_HTML_CONTENT,
+		C_HTML_CONTENT_EN,
+		C_VIDEO_URL,
+		C_IS_PROMOTION,
+		C_IS_RECOMMEND,
+		C_IS_STARPRODUCT
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{productNo},
+		#{categoryId},
+		#{brandId},
+		#{name},
+		#{nameEn},
+		#{marketPrice},
+		#{unitPrice},
+		#{unitPriceEn},
+		#{imageUrl},
+		#{keyWords},
+		#{keyWordsEn},
+		#{shortDesc},
+		#{shortDescEn},
+		#{htmlContent},
+		#{htmlContentEn},
+		#{videoUrl},
+		#{isPromotion},
+		#{isRecommend},
+		#{isStarProduct}
+		)
+	</insert>
+
+	<update id="update" parameterType="product" >
+		UPDATE product SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_CATEGORY_ID = #{categoryId},
+		C_BRAND_ID = #{brandId},
+		C_NAME = #{name},
+		C_NAME_EN = #{nameEn},
+		C_KEY_WORDS = #{keyWords},
+		C_KEY_WORDS_EN = #{keyWordsEn},
+		C_SHORT_DESC = #{shortDesc},
+		C_SHORT_DESC_EN = #{shortDescEn},
+		C_HTML_CONTENT = #{htmlContent},
+		C_HTML_CONTENT_EN = #{htmlContentEn},
+		C_VIDEO_URL = #{videoUrl},
+		C_IS_PROMOTION = #{isPromotion},
+		C_DISCOUNT = #{discount},
+		C_IS_RECOMMEND = #{isRecommend},
+		C_IS_STARPRODUCT = #{isStarProduct}
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="saveOneImgUrl" parameterType="product" >
+		UPDATE product SET
+		C_IMAGE_URL = #{imageUrl}
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="saveDefaultPrice" parameterType="product" >
+		UPDATE product SET
+		C_MARKET_PRICE = #{marketPrice},
+		C_UNIT_PRICE = #{unitPrice}
+		WHERE ID = #{id}
+	</update>
+	
+	<!-- 批量修改产品类别 -->
+	<update id="changeCategory" parameterType="product">
+		UPDATE product p SET p.C_CATEGORY_ID = #{categoryId}
+		WHERE p.ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM product 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+	<delete id="delByProductNo">
+		DELETE FROM product 
+		WHERE C_PRODUCT_NO = #{productNo}
+	</delete>
+	
+</mapper>

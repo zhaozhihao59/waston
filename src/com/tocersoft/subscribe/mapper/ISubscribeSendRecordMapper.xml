@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.subscribe.dao.ISubscribeSendRecordDao">
+	<resultMap type="subscribeSendRecord" id="subscribeSendRecordResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--订阅人ID -->
+		<result property="subscribeId" column="C_SUBSCRIBE_ID" />
+		<!--订阅人邮箱 -->
+		<result property="email" column="C_EMAIL" />
+		<!--发送内容ID -->
+		<result property="sendId" column="C_SEND_ID" />
+		<!--订阅者姓名 -->
+		<result property="subscribeName" column="C_SUBSCRIBE_NAME" />
+		<!--发送内容ID -->
+		<result property="subscribeMobile" column="C_SUBSCRIBE_MOBILE" />
+		<!--期刊名称 -->
+		<result property="subscribeChannelName" column="C_SUBSCRIBE_CHANNEL_NAME" />
+		<!--发送标题 -->
+		<result property="subscribeSendTitle" column="C_SUBSCRIBE_SEND_TITLE" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_SUBSCRIBE_ID,
+		o.C_EMAIL,
+		o.C_SEND_ID
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.subscribeId != null and condition.subscribeId != ''">
+			AND o.C_SUBSCRIBE_ID like '%${condition.subscribeId}%' 
+		</if>
+		<if test="condition.email != null and condition.email != ''">
+			AND o.C_EMAIL like '%${condition.email}%' 
+		</if>
+		<if test="condition.sendId != null and condition.sendId != ''">
+			AND o.C_SEND_ID like '%${condition.sendId}%' 
+		</if>
+
+	</sql>
+
+	<select id="listSubscribeSendRecordByPage" resultMap="subscribeSendRecordResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM subscribe_send_record o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+		ORDER BY o.C_CREATE_DATE DESC
+	</select>
+	<select id="listSubscribeSendRecordByPageCount" resultType="int">
+		SELECT count(1) FROM subscribe_send_record o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+		ORDER BY o.C_CREATE_DATE DESC
+	</select>
+
+	<select id="getSubscribeSendRecordById" resultMap="subscribeSendRecordResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM subscribe_send_record o
+		WHERE o.ID = #{id}
+	</select>
+
+	<insert id="add" parameterType="subscribeSendRecord">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO subscribe_send_record
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_SUBSCRIBE_ID,
+		C_EMAIL,
+		C_SEND_ID
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{subscribeId},
+		#{email},
+		#{sendId}
+		)
+	</insert>
+
+	<update id="update" parameterType="subscribeSendRecord" >
+		UPDATE subscribe_send_record SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_SUBSCRIBE_ID = #{subscribeId},
+		C_EMAIL = #{email},
+		C_SEND_ID = #{sendId}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM subscribe_send_record 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<select id="subscribeSendListByCount" resultType="int">
+		SELECT count(1) FROM subscribe_send_record o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	
+	<select id="subscribeSendList" resultMap="subscribeSendRecordResultMap">
+		SELECT <include refid="allColumnSql"/>,s.C_NAME AS C_SUBSCRIBE_NAME,s.C_MOBILE AS C_SUBSCRIBE_MOBILE,s.C_CHANNEL_NAME AS C_SUBSCRIBE_CHANNEL_NAME,ss.C_SEND_TITLE AS C_SUBSCRIBE_SEND_TITLE
+		FROM subscribe_send_record o
+		LEFT JOIN subscribe_send ss ON o.C_SEND_ID = ss.ID
+		left join subscribe s on o.C_SUBSCRIBE_ID =s.ID 
+		ORDER BY o.C_CREATE_DATE DESC
+	</select>
+
+</mapper>

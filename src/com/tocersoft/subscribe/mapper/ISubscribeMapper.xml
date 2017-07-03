@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.subscribe.dao.ISubscribeDao">
+	<resultMap type="subscribe" id="subscribeResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--邮箱 -->
+		<result property="email" column="C_EMAIL" />
+		<!--手机号码 -->
+		<result property="mobile" column="C_MOBILE" />
+		<!--订阅者姓名 -->
+		<result property="name" column="C_NAME" />
+		<!--公司名称 -->
+		<result property="companyName" column="C_COMPANY_NAME" />
+		<!--职务 -->
+		<result property="position" column="C_POSITION" />
+		<!--订阅状态：0-正常订阅，1-退订 -->
+		<result property="state" column="C_STATE" />
+		<!--期刊类型ID（栏目ID） -->
+		<result property="channelId" column="C_CHANNEL_ID" />
+		<!--期刊类型名称 -->
+		<result property="channelName" column="C_CHANNEL_NAME" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_EMAIL,
+		o.C_MOBILE,
+		o.C_NAME,
+		o.C_COMPANY_NAME,
+		o.C_POSITION,
+		o.C_STATE,
+		o.C_CHANNEL_ID,
+		o.C_CHANNEL_NAME
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.key != null and condition.key != ''">
+			AND (
+			o.C_EMAIL like '%${condition.key}%'  or 
+			o.C_COMPANY_NAME like '%${condition.key}%' or
+			o.C_POSITION like '%${condition.key}%'  
+			)
+		</if>
+		<if test="condition.email != null and condition.email != ''">
+			AND o.C_EMAIL like '%${condition.email}%' 
+		</if>
+		<if test="condition.mobile != null and condition.mobile != ''">
+			AND o.C_MOBILE like '%${condition.mobile}%' 
+		</if>
+		<if test="condition.name != null and condition.name != ''">
+			AND o.C_NAME like '%${condition.name}%' 
+		</if>
+		<if test="condition.companyName != null and condition.companyName != ''">
+			AND o.C_COMPANY_NAME like '%${condition.companyName}%' 
+		</if>
+		<if test="condition.position != null and condition.position != ''">
+			AND o.C_POSITION like '%${condition.position}%' 
+		</if>
+		<if test="condition.state != null and condition.state != ''">
+			AND o.C_STATE like '%${condition.state}%' 
+		</if>	
+		<if test="condition.channelId != null and condition.channelId != ''">
+			AND o.C_CHANNEL_ID like '%${condition.channelId}%' 
+		</if>
+		<if test="condition.channelName != null and condition.channelName != ''">
+			AND o.C_CHANNEL_NAME like '%${condition.channelName}%' 
+		</if>
+
+	</sql>
+
+	<select id="listSubscribeByPage" resultMap="subscribeResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM subscribe o
+		WHERE 1=1 <include refid="searchConditionSql"/> ORDER BY o.C_CREATE_DATE DESC
+	</select>
+	<select id="listSubscribeSelectByPage" resultMap="subscribeResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM subscribe o
+		WHERE 1=1 <include refid="searchConditionSql"/>  ORDER BY o.C_CREATE_DATE DESC
+	</select>
+	<select id="listSubscribeByPageCount" resultType="int">
+		SELECT count(1) FROM subscribe o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getSubscribeById" resultMap="subscribeResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM subscribe o
+		WHERE o.ID = #{id}
+	</select>
+
+	<insert id="add" parameterType="subscribe">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO subscribe
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_EMAIL,
+		C_MOBILE,
+		C_NAME,
+		C_COMPANY_NAME,
+		C_POSITION,
+		C_STATE,
+		C_CHANNEL_ID,
+		C_CHANNEL_NAME
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{email},
+		#{mobile},
+		#{name},
+		#{companyName},
+		#{position},
+		#{state},
+		#{channelId},
+		#{channelName}
+		)
+	</insert>
+
+	<update id="update" parameterType="subscribe" >
+		UPDATE subscribe SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_EMAIL = #{email},
+		C_MOBILE = #{mobile},
+		C_NAME = #{name},
+		C_COMPANY_NAME = #{companyName},
+		C_POSITION = #{position},
+		C_STATE = #{state},
+		C_CHANNEL_ID = #{channelId},
+		C_CHANNEL_NAME = #{channelName}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM subscribe 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	<select id="getSubscribeByemail" resultType="int">
+		SELECT COUNT(1) FROM subscribe o
+		WHERE o.C_EMAIL = #{email} AND o.C_CHANNEL_ID = #{channelid}
+	</select>
+	<select id="getSubscribeItemByemail" resultType="subscribe">
+		SELECT <include refid="allColumnSql"/> FROM subscribe o
+		WHERE o.C_EMAIL = #{email} AND o.C_CHANNEL_ID = #{channelid}
+	</select>
+	<update id="cancleSuscribe" parameterType="subscribe" >
+	UPDATE subscribe SET
+		C_STATE = 1
+		WHERE C_EMAIL = #{email} and C_CHANNEL_ID = #{channelId}
+	</update>
+</mapper>

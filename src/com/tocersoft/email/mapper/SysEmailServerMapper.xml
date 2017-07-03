@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.email.dao.SysEmailServerConfigDao">
+	<resultMap type="emailServerConfig" id="emailServerConfigMap"
+		extends="BaseBusEntity.entity">
+		<result property="hostName" column="hostName" />
+		<result property="account" column="account" />
+		<result property="password" column="password" />
+	</resultMap>
+	
+	<insert id="add" parameterType="sysEmail">
+		INSERT INTO sys_email_config(hostName,account,password) 
+		VALUES (#{hostName},#{account}, #{password})
+	</insert>
+	
+	<select id="getEmailServerConfig" resultMap="emailServerConfigMap">
+		select * from sys_email_config
+	</select>
+	
+	<update id="update">
+		update sys_email_config set hostName = #{hostName},account = #{account}, password = #{password}
+	</update>
+	
+</mapper>

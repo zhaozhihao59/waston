@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.auth.dao.IRightDao">
+	<resultMap type="right" id="rightResultMap" extends="BaseBusEntity.entity">
+		<result column="C_LOCATION" property="location" />
+		<result column="C_NAME" property="name" />
+		<result column="C_PARENT_ID" property="parentId" />
+		<result column="C_PCODE" property="pcode" />
+		<result column="C_SORT" property="sort" />
+		<result column="C_STATE" property="state" />
+		<result column="C_TIP" property="tip" />
+		<result column="C_URL" property="url" />
+	</resultMap>
+	
+	<sql id="allColumnSql">
+		<![CDATA[
+			r.id,r.C_CREATE_BY,r.C_CREATE_DATE,r.C_DELETE_FLAG,r.C_UPDATE_BY,r.C_UPDATE_DATE,
+			r.C_LOCATION,r.C_NAME,r.C_PARENT_ID,r.C_PCODE,r.C_SORT,
+			r.C_STATE,r.C_TIP,r.C_URL
+		]]>
+	</sql>
+	
+	<!-- 查询所有权限 -->
+	<select id="getAllEnableRights" resultMap="rightResultMap">
+		select 
+		<include refid="allColumnSql"/>
+		from auth_right r where r.C_STATE = 1 and r.C_DELETE_FLAG !=1  
+		order by r.C_SORT asc
+	</select>
+ 
+	<!-- 查询当前用户角色下可见权限 -->
+	<select id="getAllEnableRightsByUserId" resultMap="rightResultMap" parameterType="string">
+		select distinct 
+		<include refid="allColumnSql"/> 
+		from auth_right r 
+		left outer join auth_role_right rr on r.ID=rr.C_RIGHT_ID 
+		left outer join auth_user_roles ur on ur.C_ROLE_ID=rr.C_ROLE_ID
+		where ur.C_USER_ID=#{id} and r.C_DELETE_FLAG !=1 
+		order by r.C_SORT
+	</select>
+	
+	<select id="getRoleByRoleId" resultMap="rightResultMap" parameterType="string">
+		select distinct 
+		<include refid="allColumnSql"/>
+		from auth_right r
+		left outer join auth_role_right rr on r.ID=rr.C_RIGHT_ID 
+		where rr.C_ROLE_ID=#{id} 
+		order by r.C_SORT
+	</select>
+	
+	<select id="listRightByPid" resultMap="rightResultMap" parameterType="string">
+		select distinct 
+		<include refid="allColumnSql"/> 
+		from auth_right r 
+		where r.C_PARENT_ID = #{pid} 
+		AND r.C_DELETE_FLAG !=1  
+		order by r.C_SORT 
+	</select>
+	
+	 <select id="getCodeNum" parameterType="java.lang.String" resultType="String">
+		SELECT C.C_CODENUM FROM auth_right C WHERE
+		C.id = #{id}
+	</select>
+	
+	<insert id="doAddRightNew" parameterType="right">
+		INSERT INTO auth_right(ID,C_CREATE_BY,C_CREATE_DATE,C_UPDATE_BY,C_UPDATE_DATE,C_DELETE_FLAG,C_NAME,C_PARENT_ID,C_URL,C_TIP,C_SORT,C_LOCATION,C_STATE)
+		VALUES
+		(SYS_GUID(),#{createBy},#{createDate},#{updateBy},#{updateDate},0,#{name},#{parentId},#{fuUrl},#{tip},#{sort},#{location},1)
+	</insert>
+ 
+ 	<!--根据部门ID 查找部门 -->
+	<select id="getRightById" resultMap="rightResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM auth_right r
+		WHERE r.ID = #{id}
+	</select>
+ 	<select id="getMaxCodeNum" parameterType="java.lang.String"
+		resultType="String">
+		SELECT MAX(c.C_CODENUM),MAX(c.C_SORT) FROM auth_right c WHERE
+		c.C_PARENT_ID=#{value}
+	</select>
+	
+	<insert id="add" parameterType="right">
+		<selectKey keyProperty="id" resultType="java.lang.String" order="BEFORE">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO auth_right(ID,C_CREATE_BY,C_CREATE_DATE,C_UPDATE_BY,C_UPDATE_DATE,C_DELETE_FLAG,C_NAME,C_PARENT_ID,C_URL,C_TIP,C_SORT,C_LOCATION,C_STATE)
+		VALUES
+		(#{id},#{createBy},#{createDate},#{updateBy},#{updateDate},0,#{name},#{parentId},#{url},#{tip},#{sort},#{location},1)
+	</insert>
+	
+		<!-- 修改 -->
+	<update id="doUpdateRight" parameterType="right">
+		UPDATE auth_right SET C_name = #{name} , C_sort = #{sort}, C_TIP = #{tip} ,C_URL = #{url},C_UPDATE_DATE=#{updateDate},C_UPDATE_BY=#{updateBy} WHERE
+		id = #{id}
+	</update>
+	
+	<delete id="delRightById" parameterType="java.lang.String">
+		delete from auth_right where id = #{id} or C_PARENT_ID= #{id}
+	</delete>
+	
+		<!-- 修改是否为父节点，是否可删除 -->
+	<update id="updateIsParentDeleteById" parameterType="java.lang.String">
+		UPDATE auth_right c SET 
+		c.C_LOCATION = #{location} 
+		WHERE c.ID = #{id}
+	</update>
+</mapper>

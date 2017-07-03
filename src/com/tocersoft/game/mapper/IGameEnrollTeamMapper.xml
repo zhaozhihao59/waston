@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.game.dao.IGameEnrollTeamDao">
+	<resultMap type="gameEnrollTeam" id="gameEnrollTeamResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--赛事项目ID -->
+		<result property="gameItemId" column="C_GAME_ITEM_ID" />
+		<!--所属车队ID -->
+		<result property="teamId" column="C_TEAM_ID" />
+		<!--所属车队名称 -->
+		<result property="teamName" column="C_TEAM_NAME" />
+		<!--车队经理ID -->
+		<result property="teamLeaderId" column="C_TEAM_LEADER_ID" />
+		<!--车队经理 -->
+		<result property="teamLeaderName" column="C_TEAM_LEADER_NAME" />
+		<!--车队经理电话 -->
+		<result property="teamLeaderPhone" column="C_TEAM_LEADER_PHONE" />
+		<!--报名人数 -->
+		<result property="enrollCount" column="C_ENROLL_COUNT" />
+		<!--报名费总计 -->
+		<result property="enrollFee" column="C_ENROLL_FEE" />
+		<!--报名费 - 已付款 -->
+		<result property="enrollFeePaid" column="C_ENROLL_FEE_PAID" />
+		<!--报名状态：0-未付款，1-已付款，2-已成功，3-已取消 -->
+		<result property="state" column="C_STATE" />
+		<!--备注 -->
+		<result property="remark" column="C_REMARK" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_GAME_ITEM_ID,
+		o.C_TEAM_ID,
+		o.C_TEAM_NAME,
+		o.C_TEAM_LEADER_ID,
+		o.C_TEAM_LEADER_NAME,
+		o.C_TEAM_LEADER_PHONE,
+		o.C_ENROLL_COUNT,
+		o.C_ENROLL_FEE,
+		o.C_ENROLL_FEE_PAID,
+		o.C_STATE,
+		o.C_REMARK
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.teamId != null and condition.teamId != ''">
+			AND o.C_TEAM_ID like '%${condition.teamId}%' 
+		</if>
+		<if test="condition.teamLeaderId != null and condition.teamLeaderId != ''">
+			AND o.C_TEAM_LEADER_ID like '%${condition.teamLeaderId}%' 
+		</if>
+		<if test="condition.teamLeaderName != null and condition.teamLeaderName != ''">
+			AND o.C_TEAM_LEADER_NAME like '%${condition.teamLeaderName}%' 
+		</if>
+		<if test="condition.teamLeaderPhone != null and condition.teamLeaderPhone != ''">
+			AND o.C_TEAM_LEADER_PHONE like '%${condition.teamLeaderPhone}%' 
+		</if>
+		<if test="condition.remark != null and condition.remark != ''">
+			AND o.C_REMARK like '%${condition.remark}%' 
+		</if>
+
+	</sql>
+
+	<select id="listGameEnrollTeamByPage" resultMap="gameEnrollTeamResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM game_enroll_team o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listGameEnrollTeamByPageCount" resultType="int">
+		SELECT count(1) FROM game_enroll_team o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getGameEnrollTeamById" resultMap="gameEnrollTeamResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM game_enroll_team o
+		WHERE o.ID = #{id}
+	</select>
+
+	<insert id="add" parameterType="gameEnrollTeam">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO game_enroll_team
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_GAME_ITEM_ID,
+		C_TEAM_ID,
+		C_TEAM_NAME,
+		C_TEAM_LEADER_ID,
+		C_TEAM_LEADER_NAME,
+		C_TEAM_LEADER_PHONE,
+		C_ENROLL_COUNT,
+		C_ENROLL_FEE,
+		C_ENROLL_FEE_PAID,
+		C_STATE,
+		C_REMARK
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{gameItemId},
+		#{teamId},
+		#{teamName},
+		#{teamLeaderId},
+		#{teamLeaderName},
+		#{teamLeaderPhone},
+		#{enrollCount},
+		#{enrollFee},
+		#{enrollFeePaid},
+		#{state},
+		#{remark}
+		)
+	</insert>
+
+	<update id="update" parameterType="gameEnrollTeam" >
+		UPDATE game_enroll_team SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_GAME_ITEM_ID = #{gameItemId},
+		C_TEAM_ID = #{teamId},
+		C_TEAM_NAME = #{teamName},
+		C_TEAM_LEADER_ID = #{teamLeaderId},
+		C_TEAM_LEADER_NAME = #{teamLeaderName},
+		C_TEAM_LEADER_PHONE = #{teamLeaderPhone},
+		C_ENROLL_COUNT = #{enrollCount},
+		C_ENROLL_FEE = #{enrollFee},
+		C_ENROLL_FEE_PAID = #{enrollFeePaid},
+		C_STATE = #{state},
+		C_REMARK = #{remark}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM game_enroll_team 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IProductAttrValueDao">
+	<resultMap type="productAttrValue" id="productAttrValueResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--属性ID -->
+		<result property="productAttrId" column="C_PRODUCT_ATTR_ID" />
+		<!--属性ID -->
+		<result property="attrId" column="C_ATTR_ID" />
+		<!--产品属性名称 -->
+		<result property="attrName" column="C_ATTR_NAME" />
+		<!--产品属性值id -->
+		<result property="attrValId" column="C_ATTR_VAL_ID" />
+		<!--属性值名称(自定义属性时,两个属性值必填) -->
+		<result property="lineAttrvalName" column="C_LINE_ATTRVAL_NAME" />
+		<!--属性值中文名称 -->
+		<result property="lineAttrvalNameCn" column="C_LINE_ATTRVAL_NAME_CN" />
+		<!--产品属性图片路径 -->
+		<result property="picUrl" column="C_PIC_URL" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_PRODUCT_ATTR_ID,
+		o.C_ATTR_ID,
+		o.C_ATTR_NAME,
+		o.C_ATTR_VAL_ID,
+		o.C_LINE_ATTRVAL_NAME,
+		o.C_LINE_ATTRVAL_NAME_CN,
+		o.C_PIC_URL
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.attrName != null and condition.attrName != ''">
+			AND o.C_ATTR_NAME like '%${condition.attrName}%' 
+		</if>
+		<if test="condition.lineAttrvalName != null and condition.lineAttrvalName != ''">
+			AND o.C_LINE_ATTRVAL_NAME like '%${condition.lineAttrvalName}%' 
+		</if>
+		<if test="condition.lineAttrvalNameCn != null and condition.lineAttrvalNameCn != ''">
+			AND o.C_LINE_ATTRVAL_NAME_CN like '%${condition.lineAttrvalNameCn}%' 
+		</if>
+		<if test="condition.picUrl != null and condition.picUrl != ''">
+			AND o.C_PIC_URL like '%${condition.picUrl}%'
+		</if>
+	</sql>
+	
+	<select id="listPruductAttrAndCategory" resultMap="productAttrValueResultMap">
+		select o1.ID as ID, o.ID as C_ATTR_ID,
+		o.C_LINE_ATTR_NAME_CN as C_ATTR_NAME, 
+		o3.C_LINE_ATTRVAL_NAME_CN as C_LINE_ATTRVAL_NAME_CN 
+		from product_category_attribute o 
+		left join product_attr_value o1 on o1.C_ATTR_ID = o.ID 
+		left join product_attr o2 on o2.ID = o1.C_PRODUCT_ATTR_ID 
+		left join product_category_attribute_value o3 on o3.ID = o1.C_ATTR_VAL_ID  
+		where o.C_CATEGORY_ID = #{categoryId} 
+		and o.C_SALE_ATTR = '0' 
+		and o2.C_PRODUCT_ID = #{productId}
+	</select>
+
+ 	<select id="listPruductAttrAndCategoryCount" resultType="int">
+		select count(1)
+		from product_category_attribute o 
+		left join product_attr_value o1 on o1.C_ATTR_ID = o.ID 
+		left join product_attr o2 on o2.ID = o1.C_PRODUCT_ATTR_ID 
+		left join product_category_attribute_value o3 on o3.ID = o1.C_ATTR_VAL_ID  
+		where o.C_CATEGORY_ID = #{condition.categoryId} 
+		and (  o1.ID IS NULL or o2.C_PRODUCT_ID = #{condition.productId}  )
+	</select>
+	
+	<select id="listProductAttrValueByPage" resultMap="productAttrValueResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_attr_value o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listProductAttrValueByPageCount" resultType="int">
+		SELECT count(1) FROM product_attr_value o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getProductAttrValueById" resultMap="productAttrValueResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_attr_value o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<select id="getProductAttrValueByAttrId" resultMap="productAttrValueResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_attr_value o 
+		WHERE o.C_PRODUCT_ATTR_ID = #{attrId}
+	</select>
+
+	<select id="listProductAttrValueByProductAttrId" resultMap="productAttrValueResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_attr_value o 
+		WHERE o.C_PRODUCT_ATTR_ID = #{productAttrId}
+	</select>
+
+	<insert id="add" parameterType="productAttrValue">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO product_attr_value
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_PRODUCT_ATTR_ID,
+		C_ATTR_ID,
+		C_ATTR_NAME,
+		C_ATTR_VAL_ID,
+		C_LINE_ATTRVAL_NAME,
+		C_LINE_ATTRVAL_NAME_CN,
+		C_PIC_URL
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{productAttrId},
+		#{attrId},
+		#{attrName},
+		#{attrValId},
+		#{lineAttrvalName},
+		#{lineAttrvalNameCn},
+		#{picUrl}
+		)
+	</insert>
+
+	<update id="update" parameterType="productAttrValue" >
+		UPDATE product_attr_value SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_PRODUCT_ATTR_ID = #{productAttrId},
+		C_ATTR_ID = #{attrId},
+		C_ATTR_NAME = #{attrName},
+		C_ATTR_VAL_ID = #{attrValId},
+		C_LINE_ATTRVAL_NAME = #{lineAttrvalName},
+		C_LINE_ATTRVAL_NAME_CN = #{lineAttrvalNameCn},
+		C_PIC_URL = #{picUrl}
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="updateAttrValueId">
+		UPDATE product_attr_value SET
+		C_UPDATE_DATE = SYSDATE(),
+		C_ATTR_VAL_ID = #{attrValueId}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM product_attr_value 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

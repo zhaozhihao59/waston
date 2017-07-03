@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.system.dao.ISysDictDao">
+	<resultMap type="sysDict" id="sysDictMap" extends="BaseBusEntity.entity">
+		<!-- 名称 -->
+		<result property="name" column="C_NAME" />
+		<!-- 排序 -->
+		<result property="sort" column="C_SORT" />
+	</resultMap>
+	
+	<sql id="allColumnSql">
+		sd.ID,sd.C_CREATE_BY,sd.C_CREATE_DATE,sd.C_UPDATE_BY,sd.C_UPDATE_DATE,sd.C_DELETE_FLAG,
+		sd.C_NAME,sd.C_SORT
+	</sql>
+	
+	<!-- 获取所有数据库字典 -->
+	<select id="listAll" resultMap="sysDictMap">
+		SELECT 
+		<include refid="allColumnSql"/>
+		FROM sys_dict sd
+		WHERE sd.C_DELETE_FLAG = 0
+		ORDER BY sd.C_SORT ASC, C_CREATE_DATE DESC
+	</select>
+	
+	<!-- 根据ID查询数据库字典 -->
+	<select id="getSysDictById" resultMap="sysDictMap">
+		SELECT 
+		<include refid="allColumnSql"/>
+		FROM sys_dict sd
+		WHERE sd.C_DELETE_FLAG = 0
+		and sd.id = #{id}
+	</select>
+	
+	<!-- 保存数据名称 -->
+	<insert id="addSysDict">
+		<selectKey keyProperty="id" order="BEFORE" resultType="string">
+			SELECT sys_guid()
+		</selectKey>
+		INSERT INTO sys_dict(
+			ID,C_CREATE_BY,C_CREATE_DATE,C_UPDATE_BY,C_UPDATE_DATE,C_DELETE_FLAG,
+			C_NAME,C_SORT
+		)VALUES(
+			#{id},#{createBy},sysdate(),#{updateBy},sysdate(),0,
+			#{name},#{sort}
+		)
+	</insert>
+	
+	<!-- 修改数据名称 -->
+	<update id="doUpdate">
+		UPDATE sys_dict SET 
+			C_UPDATE_BY = #{updateBy},
+			C_UPDATE_DATE = sysdate(),
+			C_NAME = #{name},
+			C_SORT = #{sort}
+		WHERE ID = #{id}
+	</update>
+	
+	<!-- 批量删除数据库字典项 -->
+	<delete id="delBatch">
+		DELETE FROM sys_dict
+		WHERE id IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+</mapper>

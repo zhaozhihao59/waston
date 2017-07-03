@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.subscribe.dao.ISubscribeSendDao">
+	<resultMap type="subscribeSend" id="subscribeSendResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--订阅邮件标题 -->
+		<result property="sendTitle" column="C_SEND_TITLE" />
+		<!--订阅邮件内容 -->
+		<result property="htmlContent" column="C_HTML_CONTENT" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_SEND_TITLE,
+		o.C_HTML_CONTENT
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.sendTitle != null and condition.sendTitle != ''">
+			AND o.C_SEND_TITLE like '%${condition.sendTitle}%' 
+		</if>
+		<if test="condition.htmlContent != null and condition.htmlContent != ''">
+			AND o.C_HTML_CONTENT like '%${condition.htmlContent}%' 
+		</if>
+
+	</sql>
+
+	<select id="listSubscribeSendByPage" resultMap="subscribeSendResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM subscribe_send o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+		ORDER BY o.C_CREATE_DATE DESC
+	</select>
+	<select id="listSubscribeSendByPageCount" resultType="int">
+		SELECT count(1) FROM subscribe_send o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+		ORDER BY o.C_CREATE_DATE DESC
+	</select>
+
+	<select id="getSubscribeSendById" resultMap="subscribeSendResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM subscribe_send o
+		WHERE o.ID = #{id}
+	</select>
+
+	<insert id="add" parameterType="subscribeSend">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO subscribe_send
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_SEND_TITLE,
+		C_HTML_CONTENT
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{sendTitle},
+		#{htmlContent}
+		)
+	</insert>
+
+	<update id="update" parameterType="subscribeSend" >
+		UPDATE subscribe_send SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_SEND_TITLE = #{sendTitle},
+		C_HTML_CONTENT = #{htmlContent}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM subscribe_send 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

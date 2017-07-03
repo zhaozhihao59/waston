@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN" "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="basePackage" extends="json-default">
+		<interceptors>
+			<interceptor-stack name="baseStack">
+				<interceptor-ref name="exception" />
+                <interceptor-ref name="alias" />
+                <interceptor-ref name="servletConfig" />
+                <interceptor-ref name="i18n" />
+                <interceptor-ref name="prepare" />
+                <interceptor-ref name="chain" />
+                <interceptor-ref name="debugging" />
+                <interceptor-ref name="scopedModelDriven" />
+                <interceptor-ref name="modelDriven" />
+                <interceptor-ref name="checkbox" />
+                <interceptor-ref name="multiselect" />
+                <interceptor-ref name="staticParams" />
+                <interceptor-ref name="actionMappingParams" />
+                <interceptor-ref name="params">
+					<param name="excludeParams">dojo\..*,^struts\..*,.*\\u0023.*,.*\\x5Cu0023.*,.*\\x5cu0023.*</param>
+                </interceptor-ref>
+                <interceptor-ref name="conversionError"/>
+				<interceptor-ref name="basePath" />
+                <interceptor-ref name="validation">
+                    <param name="excludeMethods">input,back,cancel,browse</param>
+                    <param name="validateAnnotatedMethodOnly">true</param>
+                </interceptor-ref>
+                <interceptor-ref name="workflow">
+                    <param name="excludeMethods">input,back,cancel,browse</param>
+                </interceptor-ref>
+            </interceptor-stack>
+            <interceptor name="basePath" class="baseInterceptor" />
+		</interceptors>
+
+		<default-interceptor-ref name="baseStack" />
+		<global-results>
+			<result name="error" >/WEB-INF/pages/common/error.jsp</result>
+			<result name="ajaxError" >/WEB-INF/pages/common/ajax_error.jsp</result>
+		</global-results>
+	</package>
+	
+	<package name="admin" extends="basePackage" namespace="/admin">
+		<interceptors>
+			<interceptor name="baseInterceptor" class="baseInterceptor" />
+			<interceptor name="trimInterceptor" class="trimInterceptor" />			
+			<interceptor-stack name="adminStack">
+				<interceptor-ref name="fileUpload">
+				</interceptor-ref>
+				<interceptor-ref name="baseStack" />
+				<interceptor-ref name="baseInterceptor" />
+				<interceptor-ref name="trimInterceptor" />
+			</interceptor-stack>
+		</interceptors>
+		<default-interceptor-ref name="adminStack" />
+	</package>
+	<package name="front" extends="basePackage" namespace="/">
+		<interceptors>
+			<interceptor name="baseInterceptor" class="baseInterceptor" />
+			<interceptor name="trimInterceptor" class="trimInterceptor" />
+			<interceptor name="frontInterceptor" class="frontInterceptor" />
+			<interceptor-stack name="frontStack">
+				<interceptor-ref name="fileUpload">
+					<param name="allowedTypes">image/jpeg,image/pjpeg,image/gif,image/bmp,image/x-ms-bmp,image/png,image/x-png</param>
+					<param name="maximumSize">2097152</param>
+				</interceptor-ref>
+				<interceptor-ref name="baseStack" />
+				<interceptor-ref name="baseInterceptor" />
+				<interceptor-ref name="trimInterceptor" />
+				<interceptor-ref name="frontInterceptor" />
+			</interceptor-stack>
+		</interceptors>
+		<default-interceptor-ref name="frontStack" />
+		<global-results>
+			<result name="login" type="redirect">/</result>
+			<result name="memberLogin" type="redirect">/login/index.htm</result>
+		</global-results>
+	</package>
+	
+	<package name="member" extends="basePackage" namespace="/member">
+		<interceptors>
+			<interceptor name="baseInterceptor" class="baseInterceptor" />
+			<interceptor name="trimInterceptor" class="trimInterceptor" />
+			<interceptor name="memberInterceptor" class="memberInterceptor" />	
+			<interceptor-stack name="memberStack">
+				<interceptor-ref name="fileUpload">
+					<param name="allowedTypes">image/jpeg,image/pjpeg,image/gif,image/bmp,image/x-ms-bmp,image/png,image/x-png,application/octet-stream</param>
+					<param name="maximumSize">2097152</param>
+				</interceptor-ref>
+				<interceptor-ref name="baseStack" />
+				<interceptor-ref name="baseInterceptor" />
+				<interceptor-ref name="trimInterceptor" />
+				<interceptor-ref name="memberInterceptor" />
+			</interceptor-stack>
+		</interceptors>
+		<default-interceptor-ref name="memberStack" />
+		<global-results>
+			<result name="login" type="redirect">/login/index_back.htm</result>
+		</global-results>
+	</package>
+	
+	<package name="enMember" extends="basePackage" namespace="/en/member">
+		<interceptors>
+			<interceptor name="baseInterceptor" class="baseInterceptor" />
+			<interceptor name="trimInterceptor" class="trimInterceptor" />
+			<interceptor name="memberInterceptor" class="memberInterceptor" />	
+			<interceptor-stack name="memberStack">
+				<interceptor-ref name="fileUpload">
+					<param name="allowedTypes">image/jpeg,image/pjpeg,image/gif,image/bmp,image/x-ms-bmp,image/png,image/x-png,application/octet-stream</param>
+					<param name="maximumSize">2097152</param>
+				</interceptor-ref>
+				<interceptor-ref name="baseStack" />
+				<interceptor-ref name="baseInterceptor" />
+				<interceptor-ref name="trimInterceptor" />
+				<interceptor-ref name="memberInterceptor" />
+			</interceptor-stack>
+		</interceptors>
+		<default-interceptor-ref name="memberStack" />
+		<global-results>
+			<result name="login" type="redirect">/en/login/index_back.htm</result>
+		</global-results>
+	</package>
+	
+	
+	<package name="weixin" extends="basePackage" namespace="/">
+		<interceptors>
+			<interceptor name="baseInterceptor" class="baseInterceptor" />
+			<interceptor name="trimInterceptor" class="trimInterceptor" />
+			<interceptor name="frontInterceptor" class="frontInterceptor" />
+			<interceptor-stack name="frontStack">
+				<interceptor-ref name="fileUpload">
+					<param name="allowedTypes">image/jpeg,image/pjpeg,image/gif,image/bmp,image/x-ms-bmp,image/png,image/x-png</param>
+					<param name="maximumSize">2097152</param>
+				</interceptor-ref>
+				<interceptor-ref name="baseStack" />
+				<interceptor-ref name="baseInterceptor" />
+				<interceptor-ref name="trimInterceptor" />
+				<interceptor-ref name="frontInterceptor" />
+			</interceptor-stack>
+		</interceptors>
+		<default-interceptor-ref name="frontStack" />
+		<global-results>
+			<result name="login" type="redirect">/</result>
+			<result name="memberLogin" type="redirect">/login/index.htm</result>
+		</global-results>
+	</package>
+	
+	
+	<package name="api" extends="basePackage" namespace="/api">
+		<interceptors>
+			<interceptor name="baseInterceptor" class="baseInterceptor" />
+			<interceptor name="trimInterceptor" class="trimInterceptor" />
+			<interceptor-stack name="apiStack">
+				<interceptor-ref name="fileUpload">
+					<param name="allowedTypes">image/jpeg,image/pjpeg,image/gif,image/bmp,image/x-ms-bmp,image/png,image/x-png,application/octet-stream</param>
+					<param name="maximumSize">2097152</param>
+				</interceptor-ref>
+				<interceptor-ref name="baseStack" />
+				<interceptor-ref name="baseInterceptor" />
+				<interceptor-ref name="trimInterceptor" />
+			</interceptor-stack>
+		</interceptors>
+		<default-interceptor-ref name="apiStack" />
+		<global-results>
+			<result name="login" type="redirect">/index.htm</result>
+		</global-results>
+	</package>
+</struts>

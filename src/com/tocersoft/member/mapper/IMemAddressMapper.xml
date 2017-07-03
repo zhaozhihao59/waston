@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.member.dao.IMemAddressDao">
+	<resultMap type="memAddress" id="memAddressResultMap">
+		<!-- -->
+		<id property="id" column="ID" />
+		<!-- -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!-- -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!-- -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!-- -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!-- -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--收货地址 -->
+		<result property="address" column="C_ADDRESS" />
+ 		<!--手机号码 -->
+		<result property="mobile" column="C_MOBILE" />
+		<!--收货联系人 -->
+		<result property="linkman" column="C_LINKMAN" />
+		<!--收货联系方式 -->
+		<result property="contact" column="C_CONTACT" />
+		<!--地址状态值:0-正常 1-默认收货地址-->
+		<result property="addressStatus" column="C_ADDRESS_STATUS" />
+		<!-- 所属会员 -->
+		<result property="memberId" column="C_MEMBER_ID"/>
+		<!--省 -->
+		<result property="province" column="C_PROVINCE" />
+		<!--省ID -->
+		<result property="provinceId" column="C_PROVINCE_ID" />
+		<!--市 -->
+		<result property="city" column="C_CITY" />
+		<!--市ID -->
+		<result property="cityId" column="C_CITY_ID" />
+		<!--县/区/镇 -->
+		<result property="district" column="C_DISTRICT" />
+		<!--县/区/镇ID -->
+		<result property="districtId" column="C_DISTRICT_ID" />
+		<!--省市 -->
+		<result property="provinceCity" column="C_PROVINCE_CITY" />
+		<!--邮编 -->
+		<result property="postCode" column="C_POST_CODE" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_ADDRESS,
+		C_LINKMAN,
+		C_CONTACT,
+		C_ADDRESS_STATUS,
+		C_MEMBER_ID,
+		
+		C_PROVINCE,
+		C_PROVINCE_ID,
+		C_CITY,
+		C_CITY_ID,
+		C_DISTRICT,
+		C_DISTRICT_ID,
+		C_PROVINCE_CITY,
+		C_POST_CODE,
+		C_MOBILE
+		
+	</sql>
+	<sql id="searchConditionSql">
+		<if test="condition.addressStatus != null ">
+			AND C_ADDRESS_STATUS = #'{condition.addressStatus}' 
+		</if>
+		<if test="condition.memberId != null || condition.memberId != '' ">
+			AND C_MEMBER_ID like '%${condition.memberId}%' 
+		</if>
+	</sql>
+	<select id="listMemAddressByPage" resultMap="memAddressResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_address
+		WHERE 1=1 
+		<include refid="searchConditionSql"/>
+	</select>
+	<select id="listMemAddressByPageCount" resultType="int">
+		SELECT count(1) FROM mem_address
+		WHERE 1=1 
+		<include refid="searchConditionSql"/>
+	</select>
+	
+	<select id="listMemAddressByMemberId" resultMap="memAddressResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_address 
+		WHERE C_MEMBER_ID = #{memberId}
+	</select>
+
+	<select id="getMemAddressById" resultMap="memAddressResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_address
+		WHERE ID = #{id}
+	</select>
+	
+	<select id="getDefaultMemAddress" resultMap="memAddressResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM mem_address
+		WHERE C_MEMBER_ID = #{memberId} AND C_ADDRESS_STATUS = 1
+		LIMIT 0,1
+	</select>
+
+	<insert id="add" parameterType="memAddress">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO mem_address
+		(
+			ID,C_CREATE_BY,C_CREATE_DATE,C_UPDATE_BY,C_UPDATE_DATE,C_DELETE_FLAG,
+			C_ADDRESS,C_LINKMAN,C_CONTACT,C_ADDRESS_STATUS,C_MEMBER_ID,
+		C_PROVINCE,
+		C_PROVINCE_ID,
+		C_CITY,
+		C_CITY_ID,
+		C_DISTRICT,
+		C_DISTRICT_ID,
+		C_PROVINCE_CITY,
+		C_POST_CODE,
+		C_MOBILE
+		)
+		VALUES
+		(
+			#{id},#{createBy},sysdate(),#{updateBy},sysdate(),0,
+			#{address},#{linkman},#{contact},#{addressStatus},#{memberId},
+		#{province},
+		#{provinceId},
+		#{city},
+		#{cityId},
+		#{district},
+		#{districtId},
+		#{provinceCity},
+		#{postCode},
+		#{mobile}
+		)
+	</insert>
+
+	<update id="update" parameterType="memAddress" >
+		UPDATE mem_address SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = sysdate(),
+		C_ADDRESS = #{address},
+		C_LINKMAN = #{linkman},
+		C_CONTACT = #{contact},
+		C_PROVINCE = #{province},
+		C_PROVINCE_ID = #{provinceId},
+		C_CITY = #{city},
+		C_CITY_ID = #{cityId},
+		C_DISTRICT = #{district},
+		C_DISTRICT_ID = #{districtId},
+		C_PROVINCE_CITY = #{provinceCity},
+		C_POST_CODE = #{postCode},
+		C_MOBILE = #{mobile}
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="updateAllAddressStatusByMemberId" >
+		UPDATE mem_address SET
+		C_ADDRESS_STATUS = #{addressStatus}
+		WHERE C_MEMBER_ID = #{memberId}
+	</update>
+	
+	<update id="updateDefaultAddress" >
+		UPDATE mem_address SET
+		C_ADDRESS_STATUS = 1
+		WHERE C_MEMBER_ID = #{memberId} AND ID = #{memAddressId}
+	</update>
+	
+
+	<delete id="delByIds">
+		DELETE FROM mem_address 
+		WHERE C_MEMBER_ID = #{memberId}
+		AND ID IN 
+		<foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<delete id="delByMemberIds">
+		DELETE FROM mem_address 
+		WHERE C_MEMBER_ID IN 
+		<foreach collection="memberIds" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

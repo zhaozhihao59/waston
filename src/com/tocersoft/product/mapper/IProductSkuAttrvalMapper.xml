@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.product.dao.IProductSkuAttrvalDao">
+	<resultMap type="productSkuAttrval" id="productSkuAttrvalResultMap">
+		<!--主键ID -->
+		<id property="id" column="ID" />
+		<!--创建人 -->
+		<result property="createBy" column="C_CREATE_BY" />
+		<!--创建时间 -->
+		<result property="createDate" column="C_CREATE_DATE" />
+		<!--更新人 -->
+		<result property="updateBy" column="C_UPDATE_BY" />
+		<!--更新时间 -->
+		<result property="updateDate" column="C_UPDATE_DATE" />
+		<!--是否删除标记：0-未删除，1-已删除 -->
+		<result property="deleteFlag" column="C_DELETE_FLAG" />
+		<!--对应的SKUID -->
+		<result property="skuId" column="C_SKU_ID" />
+		<!--属性id -->
+		<result property="attrId" column="C_ATTR_ID" />
+		<!--属性值id -->
+		<result property="attrValId" column="C_ATTR_VAL_ID" />
+		<!--规格类型：1 销售规格，2，规格，3自定义规格 -->
+		<result property="sizeSpecType" column="C_SIZE_SPEC_TYPE" />
+	</resultMap>
+
+	<sql id="allColumnSql">
+		o.ID,
+		o.C_CREATE_BY,
+		o.C_CREATE_DATE,
+		o.C_UPDATE_BY,
+		o.C_UPDATE_DATE,
+		o.C_DELETE_FLAG,
+		o.C_SKU_ID,
+		o.C_ATTR_ID,
+		o.C_ATTR_VAL_ID,
+		o.C_SIZE_SPEC_TYPE
+	</sql>
+
+	<sql id="searchConditionSql">
+		<if test="condition.skuId != null and condition.skuId != ''">
+			AND o.C_SKU_ID like '%${condition.skuId}%' 
+		</if>
+
+	</sql>
+
+	<select id="listProductSkuAttrvalByPage" resultMap="productSkuAttrvalResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_sku_attrval o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+	<select id="listProductSkuAttrvalByPageCount" resultType="int">
+		SELECT count(1) FROM product_sku_attrval o
+		WHERE 1=1 <include refid="searchConditionSql"/> 
+	</select>
+
+	<select id="getProductSkuAttrvalById" resultMap="productSkuAttrvalResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_sku_attrval o
+		WHERE o.ID = #{id}
+	</select>
+	
+	<select id="listProductSkuAttrvalBySkuIds" resultMap="productSkuAttrvalResultMap">
+		SELECT <include refid="allColumnSql"/>
+		FROM product_sku_attrval o
+		WHERE o.C_SKU_ID in
+		<foreach collection="skuList" index="index" item="sku" open="(" separator="," close=")">
+			#{sku.id}
+		</foreach>
+	</select>
+	
+	<insert id="add" parameterType="productSkuAttrval">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SYS_GUID()
+		</selectKey>
+		INSERT INTO product_sku_attrval
+		(
+		ID,
+		C_CREATE_BY,
+		C_CREATE_DATE,
+		C_UPDATE_BY,
+		C_UPDATE_DATE,
+		C_DELETE_FLAG,
+		C_SKU_ID,
+		C_ATTR_ID,
+		C_ATTR_VAL_ID,
+		C_SIZE_SPEC_TYPE
+		)
+		VALUES
+		(
+		#{id},
+		#{createBy},
+		SYSDATE(),
+		#{updateBy},
+		SYSDATE(),
+		0,
+		#{skuId},
+		#{attrId},
+		#{attrValId},
+		#{sizeSpecType}
+		)
+	</insert>
+
+	<update id="update" parameterType="productSkuAttrval" >
+		UPDATE product_sku_attrval SET
+		C_UPDATE_BY = #{updateBy},
+		C_UPDATE_DATE = SYSDATE(),
+		C_SKU_ID = #{skuId},
+		C_ATTR_ID = #{attrId},
+		C_ATTR_VAL_ID = #{attrValId},
+		C_SIZE_SPEC_TYPE = #{sizeSpecType}
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="delByIds">
+		DELETE FROM product_sku_attrval 
+		WHERE ID IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+	<select id="delBySkuIds">
+		DELETE FROM product_sku_attrval 
+		WHERE C_SKU_ID in
+		<foreach collection="skuList" index="index" item="sku" open="(" separator="," close=")">
+			#{sku.id}
+		</foreach>
+	</select>
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+	version="2.0">
+
+	<description>default value</description>
+	<display-name>default value tag</display-name>
+	<tlib-version>0.1</tlib-version>
+	<short-name>dvtag</short-name>
+	<uri>/tags/default_value.tld</uri>
+
+	<function>
+		<description>输出默认值</description>
+		<display-name>d</display-name>
+		<name>d</name>
+		<function-class>com.tocersoft.base.tags.DefaultValue</function-class>
+		<function-signature>java.lang.Object d(java.lang.Object)</function-signature>
+	</function>
+	<function>
+		<description>输出截取词</description>
+		<display-name>e</display-name>
+		<name>e</name>
+		<function-class>com.tocersoft.base.tags.DefaultValue</function-class>
+		<function-signature>java.lang.Object e(java.lang.String,java.lang.Integer)</function-signature>
+	</function>
+	<function>
+		<description>url encode utf-8</description>
+		<display-name>en</display-name>
+		<name>en</name>
+		<function-class>com.tocersoft.base.tags.DefaultValue</function-class>
+		<function-signature>java.lang.String en(java.lang.String)</function-signature>
+	</function>
+</taglib>

@@ -1,0 +1,608 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tocersoft.cms.dao.ICmsArticleDao">
+	<resultMap type="cmsArticle" id="articleResultMap" extends="BaseBusEntity.entity">
+		<result column="C_NAME" property="name" />
+		<result column="C_CONTENT" property="content"/>
+		<result column="C_CREATE_DATE" property="createDate"/>
+		<result column="C_CREATE_BY" property="createBy"/>
+		<result column="C_UPDATE_DATE" property="updateDate"/>
+		<result column="C_UPDATE_BY" property="updateBy"/>
+		<result column="C_CHANNEL_ID" property="channelId"/>
+		<result column="C_CHANNEL_NAME" property="channelName"/>
+		<result column="C_SUMMARY" property="summary"/>
+		<result column="STATE" property="state"/>
+		<result column="SORT" property="sort"/>
+		<result column="IS_PUBLISH" property="isPublish"/>
+		<result column="C_READ_NUM" property="readNum"/>
+		<result column="C_LIKE_NUM" property="likeNum"/>
+		<result column="C_CREATE_NAME" property="createName"/>
+		<result column="C_KEYWORD" property="keyword"/>
+		<result column="C_KEYWORD2" property="keyword2"/>
+		<result column="C_KEYWORD3" property="keyword3"/>
+		<result column="C_PATH" property="path"/>
+		<result column="C_FILENAME" property="filename"/>
+		<result column="C_AUTHOR" property="author"/>
+		<result column="C_AUTHOR_EN" property="authorEn"/>
+		<result column="C_AUTHOR_JP" property="authorJp"/>
+		<result column="C_SOURCE" property="source"/>
+		<result column="C_ANNEX_PATH" property="annexPath"/>
+		<result column="C_ANNEX_FILENAME" property="annexFilename"/>
+<!--        英文标题 -->
+		<result column="C_EN_NAME" property="enName"/>
+<!-- 		日文标题 -->
+		<result column="C_JP_NAME" property="jpName"/>
+<!-- 		英文简介 -->
+		<result column="C_EN_SUMMARY" property="enSummary"/>
+<!-- 		日文简介 -->
+		<result column="C_JP_SUMMARY" property="jpSummary"/>
+<!-- 		英文内容 -->
+		<result column="C_EN_CONTENT" property="enContent"/>
+<!-- 		日文内容 -->
+		<result column="C_JP_CONTENT" property="jpContent"/>
+<!-- 		英文附件 -->
+		<result column="C_EN_ANNEX_FILENAME" property="enAnnexFilename"/>
+<!-- 		日文附件 -->
+		<result column="C_JP_ANNEX_FILENAME" property="jpAnnexFilename"/>
+		<result column="C_EN_ANNEX_PATH" property="enAnnexPath"/>
+		<result column="C_JP_ANNEX_PATH" property="jpAnnexPath"/>
+	
+	</resultMap>
+	
+	<sql id="allColumnSql">
+		<![CDATA[
+			a.* , 
+			c.C_NAME as C_CHANNEL_NAME,
+			u.C_NICKNAME as C_CREATE_NAME
+		]]>
+	</sql>
+	
+	<sql id="artListColumnSql">
+		<![CDATA[
+			a.ID,
+			a.C_NAME,
+			a.C_CHANNEL_ID,
+			a.C_CREATE_DATE,
+			a.STATE,
+			a.SORT,
+			a.IS_PUBLISH,
+			a.C_AUTHOR,
+			a.C_AUTHOR_EN,
+			a.C_AUTHOR_JP,
+			a.C_SOURCE,
+			a.C_ANNEX_FILENAME,
+			a.C_ANNEX_PATH,
+			a.C_PATH,
+			a.C_EN_NAME,
+			a.C_JP_NAME,
+			a.C_EN_SUMMARY,
+			a.C_JP_SUMMARY,
+			a.C_EN_CONTENT,
+			a.C_JP_CONTENT,
+			a.C_EN_ANNEX_FILENAME,
+			a.C_JP_ANNEX_FILENAME,
+			a.C_EN_ANNEX_PATH,
+			a.C_JP_ANNEX_PATH
+		]]>
+	</sql>
+	
+	<sql id="artDetailColumnSql">
+		<![CDATA[
+			a.ID,
+			a.C_NAME,
+			a.C_CHANNEL_ID,
+			a.C_CREATE_DATE,
+			a.C_UPDATE_DATE,
+			a.C_CONTENT,
+			a.STATE,
+			a.SORT,
+			c.C_NAME as C_CHANNEL_NAME,
+			a.IS_PUBLISH,
+			a.C_PATH,
+			a.C_AUTHOR,
+			a.C_SOURCE,
+			a.C_ANNEX_PATH,
+			a.C_ANNEX_FILENAME
+		]]>
+	</sql>
+	
+	<sql id="searchByPageConditionSql">
+		<if test=" condition.en != null and condition.en != '' ">
+		 	<![CDATA[
+			and a.C_EN_NAME is not null and a.C_EN_NAME<>''
+			]]>
+		</if>
+		<if test=" condition.jp != null and condition.jp != '' ">
+			<![CDATA[
+			and a.C_JP_NAME is not null and a.C_JP_NAME<>''
+			]]>
+		</if>
+		<if test=" condition.channelId != null and condition.channelId != '' ">
+			<![CDATA[
+		  	and a.C_CHANNEL_ID = #{condition.channelId}
+		  	]]>
+		</if>
+		<if test=" condition.parentID != null and condition.parentID != '' ">
+			<![CDATA[
+		  	AND a.C_CHANNEL_ID IN 
+			(SELECT c.ID FROM  cms_channel c
+			WHERE c.C_PARENT=#{condition.parentID})
+		  	]]>
+		</if>
+		<if test=" condition.channelIdArray != null and condition.channelIdArray != '' ">
+		  	and 
+		  	<foreach collection="condition.channelIdArray" item="item" index="index" open="(" separator="" close=")">
+		  	<if test="index != 0">or</if>
+				 a.C_CHANNEL_ID = #{item}
+			</foreach>
+		</if>
+		
+		 <if test=" condition.articleName != null and condition.articleName != '' ">
+		 	<![CDATA[
+		 	 and a.C_NAME like CONCAT('%',#{condition.articleName},'%')
+		 	]]>
+		 </if>
+		 <if test=" condition.keyword != null and condition.keyword != '' ">
+		 	<![CDATA[
+		 	 and ( a.C_NAME like CONCAT('%',#{condition.keyword},'%')
+		 	]]>
+		 </if>
+		 <if test=" condition.keyword2 != null and condition.keyword2 != '' ">
+		 	<![CDATA[
+		 	 or a.C_NAME like CONCAT('%',#{condition.keyword2},'%')
+		 	]]>
+		 </if>
+		 <if test=" condition.keyword3 != null and condition.keyword3 != '' ">
+		 	<![CDATA[
+		 	 or a.C_NAME like CONCAT('%',#{condition.keyword3},'%')
+		 	]]>
+		 </if>
+		 <if test="condition.keyword != null and condition.keyword != '' ">
+		 	 <![CDATA[
+				 )
+		 	]]>
+		 </if>
+		 <if test=" condition.key != null and condition.key != '' ">
+		 	<![CDATA[
+		 	 and ( a.C_NAME like CONCAT('%',#{condition.key},'%') or a.C_SUMMARY like CONCAT('%',#{condition.key},'%') ) 
+		 	]]>
+		 </if>
+		 <if test=" condition.keyEn != null and condition.keyEn != '' ">
+		 	<![CDATA[
+		 	 and ( a.C_EN_NAME like CONCAT('%',#{condition.keyEn},'%') or a.C_EN_SUMMARY like CONCAT('%',#{condition.keyEn},'%') ) 
+		 	]]>
+		 </if>
+		 <if test=" condition.keyJp != null and condition.keyJp != '' ">
+		 	<![CDATA[
+		 	 and ( a.C_JP_NAME like CONCAT('%',#{condition.keyJp},'%') or a.C_JP_SUMMARY like CONCAT('%',#{condition.keyJp},'%') ) 
+		 	]]>
+		 </if>
+  		 <if test=" condition.createDateBegin != null and condition.createDateBegin != '' ">
+		 	<![CDATA[
+		 	 and C_CREATE_DATE  >= #{condition.createDateBegin}
+		 	]]>
+		 </if>
+  		 <if test=" condition.createDateEnd != null and condition.createDateEnd != '' ">
+		 	<![CDATA[
+		 	 and C_CREATE_DATE  <= #{condition.createDateEnd}
+		 	]]>
+		 </if>
+		 <if test=" condition.isPublish != null and condition.isPublish != -1 ">
+		 	<![CDATA[
+		 	 and IS_PUBLISH  = #{condition.isPublish}
+		 	]]>
+		 </if>
+		
+		 
+		 <!-- 大栏目 1 为金融咨询 -->
+		 <if test=" condition.bChannelId != null and condition.bChannelId == 1 ">
+		 	<![CDATA[
+		 	 and a.C_CHANNEL_ID  IN (4,5)
+		 	]]>
+		 </if>
+		  <!-- 大栏目 2 为财富学院 -->
+		 <if test=" condition.bChannelId != null and condition.bChannelId == 2 ">
+		 	<![CDATA[
+		 	 and a.C_CHANNEL_ID  IN (1,2,3)
+		 	]]>
+		 </if>
+		  <!-- 大栏目 3 为关于我们 -->
+		 <if test=" condition.bChannelId != null and condition.bChannelId == 3 ">
+		 	<![CDATA[
+		 	 and a.C_CHANNEL_ID  IN (6,7,8)
+		 	]]>
+		 </if>
+		  
+		 
+		 
+		 <if test=" condition.escapeSymbol ">
+		 	<![CDATA[
+		 	ESCAPE '/'
+		 	]]>
+		 </if>
+	</sql>
+	<!-- 注：此方法用于公共调用  传入参数1.栏目ID  2.发布状态 3.条数  -->
+	<select id="getArticleListByChannelId" resultMap="articleResultMap">
+		select * from cms_article as ca where c_channel_id in (
+				select id from cms_channel c where c.C_PARENT= #{0}
+				) 
+ 		and ca.IS_PUBLISH = 1
+ 		<if test=" en != null and en != '' ">
+	 	<![CDATA[
+		and C_EN_NAME is not null and C_EN_NAME<>''
+		]]>
+	</if>
+	<if test=" jp != null and jp != '' ">
+		<![CDATA[
+		and C_JP_NAME is not null and C_JP_NAME<>''
+		]]>
+	</if>
+ 		order by ca.SORT,ca.C_CREATE_DATE DESC
+ 		limit #{1}
+ 	</select>	
+ 	
+ 		<!-- 注：此方法用于公共调用  传入参数1.栏目ID  2.发布状态 3.条数  -->
+	<select id="listArticleListByChannelId" resultMap="articleResultMap">
+		select * from cms_article as a where c_channel_id in (
+				select id from cms_channel c where c.C_PARENT= '3b4e3fb0-e891-11e4-ae9b-00266c0e7760'
+				) 
+ 		and a.IS_PUBLISH = 1
+ 		<include refid="searchByPageConditionSql"/>
+ 		order by a.SORT,a.C_CREATE_DATE DESC
+ 	</select>	
+ 		<!-- 注：此方法用于公共调用  传入参数1.栏目ID  2.发布状态 3.条数  -->
+	<select id="listArticleListByChannelIdCount" resultType="int">
+		select count(1) from cms_article as a where c_channel_id in (
+				select id from cms_channel c where c.C_PARENT= '3b4e3fb0-e891-11e4-ae9b-00266c0e7760'
+				) 
+ 		and a.IS_PUBLISH = 1
+ 		<include refid="searchByPageConditionSql"/>
+ 		order by a.SORT,a.C_CREATE_DATE DESC
+ 	</select>	
+ 		
+ 		
+	<!-- 根据栏目ID查询文章数量 -->
+	<select id="getArticleCount" resultType="int">
+		SELECT 
+		count(1)
+		FROM cms_article a
+		WHERE a.C_CHANNEL_ID = #{id}
+	</select>
+	
+	<!-- 分页 -->
+ 	<select id="getArticleListByPage" resultMap="articleResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		from cms_article a 
+		LEFT JOIN cms_channel c ON a.C_CHANNEL_ID = c.ID 
+		LEFT JOIN auth_user u ON a.C_CREATE_BY = u.ID
+		WHERE a.C_DELETE_FLAG = 0
+		<include refid="searchByPageConditionSql"/>
+		order by a.SORT,a.C_CREATE_DATE DESC
+	</select>
+	
+ <!-- 关联分页查询 -->
+ 	<select id="getArticleListByPageByParentId" resultMap="articleResultMap">
+		SELECT 
+		a.* 
+		from cms_article a WHERE a.C_CHANNEL_ID in (SELECT id FROM cms_channel cc	
+		WHERE cc.C_PARENT = "b343df2e-ee3e-11e4-a8bb-0071cc954734")
+		 order by SORT,a.C_CREATE_DATE DESC
+	</select>
+	 <!-- 关联分页查询 -->
+ 	<select id="getArticleListByPageByParentIdJp" resultMap="articleResultMap">
+		SELECT 
+		a.* 
+		from cms_article a WHERE a.C_CHANNEL_ID in (SELECT id FROM cms_channel cc	
+		WHERE cc.C_PARENT = "b343df2e-ee3e-11e4-a8bb-0071cc954734")
+			<![CDATA[
+			and a.C_JP_NAME is not null and a.C_JP_NAME<>''
+			]]>
+		 order by SORT,a.C_CREATE_DATE DESC
+	</select>
+	 <!-- 关联分页查询 -->
+ 	<select id="getArticleListByPageByParentIdEn" resultMap="articleResultMap">
+		SELECT 
+		a.* 
+		from cms_article a WHERE a.C_CHANNEL_ID in (SELECT id FROM cms_channel cc	
+		WHERE cc.C_PARENT = "b343df2e-ee3e-11e4-a8bb-0071cc954734")
+			<![CDATA[
+			and a.C_EN_NAME is not null and a.C_EN_NAME<>''
+			]]>
+		 order by SORT,a.C_CREATE_DATE DESC
+	</select>
+	<!-- 关联分页查询总条数 -->
+ 	<select id="getArticleListByPageByCount" resultType="int">
+		SELECT 
+		count(1)
+		from cms_article a WHERE a.C_CHANNEL_ID in (SELECT id FROM cms_channel cc	
+		WHERE cc.C_PARENT = "b343df2e-ee3e-11e4-a8bb-0071cc954734")
+	</select>
+ 	<select id="getArticleListByPageByCountJp" resultType="int">
+		SELECT 
+		count(1)
+		from cms_article a WHERE a.C_CHANNEL_ID in (SELECT id FROM cms_channel cc	
+		WHERE cc.C_PARENT = "b343df2e-ee3e-11e4-a8bb-0071cc954734")
+		<![CDATA[
+			and a.C_EN_NAME is not null and a.C_EN_NAME<>''
+			]]>
+	</select>
+ 	<select id="getArticleListByPageByCountEn" resultType="int">
+		SELECT 
+		count(1)
+		from cms_article a WHERE a.C_CHANNEL_ID in (SELECT id FROM cms_channel cc	
+		WHERE cc.C_PARENT = "b343df2e-ee3e-11e4-a8bb-0071cc954734")
+		<![CDATA[
+			and a.C_EN_NAME is not null and a.C_EN_NAME<>''
+			]]>
+	</select>
+	
+	<!-- 分页按点击次数排列 -->
+ 	<select id="getArticleListByPageOrderByReady" resultMap="articleResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		from cms_article a 
+		LEFT JOIN cms_channel c ON a.C_CHANNEL_ID = c.ID 
+		LEFT JOIN auth_user u ON a.C_CREATE_BY = u.ID
+		WHERE a.C_DELETE_FLAG = 0
+		<include refid="searchByPageConditionSql"/>
+		ORDER BY a.C_READ_NUM DESC 
+	</select>
+	
+	<!-- 总数 -->
+	<select id="getArticleListByPageCount" resultType="int">
+		SELECT 
+		COUNT(1) 
+		from cms_article a 
+		LEFT JOIN cms_channel c ON a.C_CHANNEL_ID = c.ID 
+		LEFT JOIN auth_user u ON a.C_CREATE_BY = u.ID 
+		WHERE a.C_DELETE_FLAG = 0
+		<include refid="searchByPageConditionSql"/>
+	</select> 
+	
+	<select id="getArticleByChannelId" resultMap="articleResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		from cms_article a
+		LEFT JOIN cms_channel c ON a.C_CHANNEL_ID = c.ID 
+		LEFT JOIN auth_user u ON a.C_CREATE_BY = u.ID 
+		WHERE a.C_DELETE_FLAG = 0 
+		AND a.C_CHANNEL_ID = #{channelId}
+		AND a.IS_PUBLISH = 1 
+		order by a.SORT,a.C_CREATE_DATE DESC
+	</select>
+	<!-- 多参数查找新闻：ID、查询条数 -->
+	<select id="getArticleByComplex" resultMap="articleResultMap">
+	 select * from cms_article where c_channel_id =#{0} 
+	 <if test=" en != null and en != '' ">
+	 	<![CDATA[
+		and C_EN_NAME is not null and C_EN_NAME<>''
+		]]>
+	</if>
+	<if test=" jp != null and jp != '' ">
+		<![CDATA[
+		and C_JP_NAME is not null and C_JP_NAME<>''
+		]]>
+	</if>
+	 order by SORT,C_CREATE_DATE DESC LIMIT #{1}
+	</select>
+	<!-- 案例查询 -->
+	<select id="getArticleByComplex2" resultMap="articleResultMap">
+		select * from cms_article ca where ca.C_CHANNEL_ID  in (select id from cms_channel where c_parent =#{0})
+	 <if test=" en != null and en != '' ">
+	 	<![CDATA[
+		and C_EN_NAME is not null and C_EN_NAME<>''
+		]]>
+	</if>
+	<if test=" jp != null and jp != '' ">
+		<![CDATA[
+		and C_JP_NAME is not null and C_JP_NAME<>''
+		]]>
+	</if>
+		 order by SORT,C_CREATE_DATE DESC LIMIT #{1}
+	</select>
+		<!-- 多参数查找新闻：ID、查询条数 -->
+	<select id="getArticleByComplexs" resultMap="articleResultMap">
+	 select * from cms_article 
+	 where c_channel_id in (#{0},#{1}) 
+	 order by SORT,C_UPDATE_DATE DESC LIMIT #{2}
+	</select>
+	
+	
+	<!-- 查询新闻跑马灯 -->	
+	<select id="getAdvByTopFive" resultMap="articleResultMap">
+		select  * 
+		from cms_article as ca 
+		where c_channel_id in(
+							select ID from CMS_CHANNEL WHERE C_PARENT =(
+		 																SELECT ID FROM CMS_CHANNEL WHERE ID ='5776ce2e-aea9-11e4-82d5-00fffd437687')) and ca.IS_PUBLISH = 1
+		 																	 <if test=" en != null and en != '' ">
+																			 	<![CDATA[
+																				and ca.C_EN_NAME is not null and ca.C_EN_NAME<>''
+																				]]>
+																			</if>
+																			<if test=" jp != null and jp != '' ">
+																				<![CDATA[
+																				and ca.C_JP_NAME is not null and ca.C_JP_NAME<>''
+																				]]>
+																			</if>
+		 																order by  ca.SORT,ca.C_CREATE_DATE DESC LIMIT 5
+	</select>
+	<!-- 添加 -->
+	<insert id="doSave" parameterType="cmsArticle">
+		INSERT INTO cms_article (ID,C_CREATE_BY,C_UPDATE_DATE
+			,C_NAME,C_CONTENT,C_DELETE_FLAG,C_CHANNEL_ID,C_CREATE_DATE,SORT,IS_PUBLISH , C_READ_NUM ,C_SUMMARY,C_KEYWORD,C_KEYWORD2,C_KEYWORD3,C_PATH,C_FILENAME
+			,C_AUTHOR,C_AUTHOR_EN,C_AUTHOR_JP, C_SOURCE,C_ANNEX_FILENAME,C_ANNEX_PATH,C_EN_NAME,C_JP_NAME,C_EN_SUMMARY,C_JP_SUMMARY,C_EN_CONTENT,C_JP_CONTENT,C_EN_ANNEX_FILENAME,C_JP_ANNEX_FILENAME,C_EN_ANNEX_PATH,C_JP_ANNEX_PATH
+		)
+		values(#{id},#{createBy},SYSDATE()
+			,#{name},#{content},0,#{channelId},#{createDate},#{sort},1,0,#{summary},#{keyword},#{keyword2},#{keyword3},#{path},#{filename}
+			,#{author},#{authorEn},#{authorJp},#{source},#{annexFilename},#{annexPath},#{enName},#{jpName},#{enSummary},#{jpSummary},#{enContent},#{jpContent},#{enAnnexFilename},#{jpAnnexFilename},#{enAnnexPath},#{jpAnnexPath}
+		)
+	</insert>
+	<!-- 修改 -->
+	<update id="doUpdate" parameterType="cmsArticle">
+		UPDATE cms_article c SET
+		c.C_NAME = #{name},
+		c.C_CREATE_DATE = #{createDate},
+		c.C_CONTENT = #{content},
+		c.C_CHANNEL_ID = #{channelId},
+		c.SORT = #{sort},
+		c.C_UPDATE_DATE = #{updateDate},
+		c.C_SUMMARY = #{summary},
+		c.C_KEYWORD = #{keyword},
+		c.C_KEYWORD2 = #{keyword2},
+		c.C_KEYWORD3 = #{keyword3},
+		c.C_READ_NUM = #{readNum},
+		c.C_PATH = #{path},
+		c.C_FILENAME = #{filename},
+		c.C_AUTHOR = #{author},
+		c.C_AUTHOR_EN = #{authorEn},
+		c.C_AUTHOR_JP = #{authorJp},
+		c.C_SOURCE = #{source},
+		c.C_UPDATE_BY = #{updateBy},
+		c.C_UPDATE_DATE = SYSDATE(),
+		c.C_ANNEX_FILENAME = #{annexFilename},
+		c.C_ANNEX_PATH = #{annexPath},
+		c.C_EN_NAME = #{enName},
+		c.C_JP_NAME = #{jpName},
+		c.C_EN_SUMMARY = #{enSummary},
+		c.C_JP_SUMMARY = #{jpSummary},
+		c.C_EN_ANNEX_FILENAME = #{enAnnexFilename},
+		c.C_JP_ANNEX_FILENAME = #{jpAnnexFilename},
+		c.C_EN_CONTENT = #{enContent},
+		c.C_JP_CONTENT = #{jpContent},
+		c.C_EN_ANNEX_PATH = #{enAnnexPath},
+		c.C_JP_ANNEX_PATH = #{jpAnnexPath}
+		WHERE c.ID = #{id}
+	</update>
+	
+	<!-- 阅读一次 -->
+	<update id="readOnce">
+		UPDATE cms_article c SET 
+		c.C_READ_NUM = c.C_READ_NUM + 1 
+		WHERE c.ID = #{articleId}
+	</update>
+	
+	<!-- 点赞一次 -->
+	<update id="likeOnce">
+		UPDATE cms_article c SET 
+		c.C_LIKE_NUM = c.C_LIKE_NUM + 1 
+		WHERE c.ID = #{articleId}
+	</update>
+	
+	<delete id="delArticle">
+		DELETE FROM cms_article WHERE ID IN
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+		  #{item}
+		</foreach> 
+	</delete>
+	
+	<!-- 根据ID查询详细信息 -->
+	<select id="getArticleById" resultMap="articleResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		from cms_article a 
+		LEFT JOIN cms_channel c ON a.C_CHANNEL_ID = c.ID  
+		LEFT JOIN auth_user u ON a.C_CREATE_BY = u.ID 
+		WHERE a.C_DELETE_FLAG = 0 AND a.ID = #{id}
+	</select>
+	<!-- 根据ID查询一条详细信息 -->
+	<select id="getArticleByItemId" resultMap="articleResultMap">
+		SELECT 
+		<include refid="artListColumnSql"/> 
+		from cms_article a 
+		WHERE a.C_DELETE_FLAG = 0 AND a.ID = #{id}
+	</select>
+	<select id="listArticleByCidLimit" resultMap="articleResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		from cms_article a
+		LEFT JOIN cms_channel c ON a.C_CHANNEL_ID = c.ID 
+		LEFT JOIN auth_user u ON a.C_CREATE_BY = u.ID 
+		WHERE a.C_DELETE_FLAG = 0 
+		AND a.C_CHANNEL_ID = #{cid}
+		AND a.IS_PUBLISH = 1 
+		ORDER BY a.SORT ASC, a.C_CREATE_DATE DESC 
+		<if test=" limit != null and limit != 0 ">
+			LIMIT 0, #{limit}
+		</if>
+	</select>
+	<!-- 查询英文版信息 -->
+	<select id="listArticleByCidEn" resultMap="articleResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		from cms_article a
+		LEFT JOIN cms_channel c ON a.C_CHANNEL_ID = c.ID 
+		LEFT JOIN auth_user u ON a.C_CREATE_BY = u.ID 
+		WHERE a.C_DELETE_FLAG = 0  AND a.C_CHANNEL_ID = #{cid} AND a.IS_PUBLISH = 1 and a.C_EN_NAME is not null
+	</select>
+	<!-- 查询日文版 信息 -->
+	<select id="listArticleByCidJp" resultMap="articleResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		from cms_article a
+		LEFT JOIN cms_channel c ON a.C_CHANNEL_ID = c.ID 
+		LEFT JOIN auth_user u ON a.C_CREATE_BY = u.ID 
+		WHERE a.C_DELETE_FLAG = 0  AND a.C_CHANNEL_ID = #{cid} AND a.IS_PUBLISH = 1 and a.C_JP_NAME is not null
+	</select>
+	<!-- 查询类别下的最新发布的前几篇文章 -->
+	<select id="listNewArticleByCidLimit" resultMap="articleResultMap">
+		SELECT 
+		<include refid="allColumnSql"/> 
+		from cms_article a
+		LEFT JOIN cms_channel c ON a.C_CHANNEL_ID = c.ID 
+		LEFT JOIN auth_user u ON a.C_CREATE_BY = u.ID 
+		WHERE a.C_DELETE_FLAG = 0 
+		AND a.C_CHANNEL_ID = #{cid}
+		AND a.IS_PUBLISH = 1 
+		ORDER BY a.C_CREATE_DATE DESC 
+		<if test=" limit != null and limit != 0 ">
+			LIMIT 0, #{limit}
+		</if>
+	</select>
+	
+	<update id="publish">
+		UPDATE cms_article a SET 
+		a.IS_PUBLISH = #{isPublish} 
+		WHERE a.ID IN 
+		<foreach collection="articleId" index="index" item="item" open="(" separator="," close=")">
+		  #{item}
+		</foreach> 
+	</update>
+	<!-- 根据栏目ID查询所有文章 -->
+	<select id="getArticleAll" resultMap="articleResultMap">
+		SELECT 
+		*
+		FROM cms_article a
+		WHERE a.C_CHANNEL_ID = #{id}
+		ORDER BY a.SORT ASC, a.C_CREATE_DATE DESC
+	</select>
+	<!-- 根据栏目ID查询所有文章 -->
+	<select id="getArticleAllJp" resultMap="articleResultMap">
+		SELECT 
+		*
+		FROM cms_article a
+		WHERE a.C_CHANNEL_ID = #{id}
+		<![CDATA[
+		and a.C_JP_NAME is not null and a.C_JP_NAME<>''
+		]]>
+	</select>
+	<!-- 根据栏目ID查询所有文章 -->
+	<select id="getArticleAllEn" resultMap="articleResultMap">
+		SELECT 
+		*
+		FROM cms_article a
+		WHERE a.C_CHANNEL_ID = #{id}
+		<![CDATA[
+		and a.C_EN_NAME is not null and a.C_EN_NAME<>''
+		]]>
+	</select>
+	
+	<!-- 根据父栏目ID查询子栏目下所有的文章 -->
+	<select id="listArticleById" resultMap="articleResultMap">
+		select <include refid="allColumnSql" />
+		FROM cms_article a WHERE a.C_CHANNEL_ID in (SELECT id FROM cms_channel cc	
+		WHERE cc.c_parent =#{parentId})
+	</select>
+</mapper>
