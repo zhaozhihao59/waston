@@ -48,6 +48,7 @@ public class CmsArticleServiceImpl implements ICmsArticleService{
 		if(StringUtils.isNotBlank(condition.getChannelId()) && condition.getChannelId().equals("0")){
 			condition.setChannelId(null);
 		}
+		
 		//获取结果集
 		List<CmsArticle> list = cmsArticleDao.getArticleListByPage(row,condition);
 		pageResult.setResult(list);

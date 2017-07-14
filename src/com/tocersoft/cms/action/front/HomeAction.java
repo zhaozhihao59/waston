@@ -161,6 +161,7 @@ public class HomeAction extends BaseAction implements ModelDriven<IndexModel>{
 		String channelArray []= new String[]{"3d5ffe8b-e890-11e4-ae9b-00266c0e7760","439c9076-e890-11e4-ae9b-00266c0e7760","c1272bc2-ee3e-11e4-a8bb-0071cc954734","c884a615-ee3e-11e4-a8bb-0071cc954734","d25b2a55-ee3e-11e4-a8bb-0071cc954734","d987e778-ee3e-11e4-a8bb-0071cc954734","bba13349-e891-11e4-ae9b-00266c0e7760","c25f9c04-e891-11e4-ae9b-00266c0e7760","cec7815c-e891-11e4-ae9b-00266c0e7760","d4c4dcbf-e891-11e4-ae9b-00266c0e7760"};
 		cc.setChannelIdArray(channelArray);
 		cc.setKey(searchName);
+		cc.setIsPublish(1);
 		model.getPageResult().setPageSize(10);
 		model.getPageResult().setCurrentPage(model.getPage());
 		try {
@@ -209,6 +210,7 @@ public class HomeAction extends BaseAction implements ModelDriven<IndexModel>{
 		CmsArticleCondition cc = new CmsArticleCondition();
 		cc.setChannelId(model.getItem().getId());
 		model.getPageResult().setPageSize(5);
+		cc.setIsPublish(1);
 		articleService.getArticleListByPage(model.getPageResult(), cc);
 		return INDEX;
 	}
@@ -224,6 +226,7 @@ public class HomeAction extends BaseAction implements ModelDriven<IndexModel>{
 		cc.setChannelId(model.getItem().getId());
 		model.getPageResult().setPageSize(5);
 		model.getPageResult().setCurrentPage(model.getPage());
+		cc.setIsPublish(1);
 		articleService.getArticleListByPage(model.getPageResult(), cc);
 		return INDEX;
 	}
@@ -280,6 +283,7 @@ public class HomeAction extends BaseAction implements ModelDriven<IndexModel>{
 		cc.setChannelId("cec7815c-e891-11e4-ae9b-00266c0e7760");
 		model.getCmsArticlePageResult().setPageSize(5);
 		model.getCmsArticlePageResult().setCurrentPage(model.getPage());
+		cc.setIsPublish(1);
 		articleService.getArticleListByPage(model.getCmsArticlePageResult(), cc);
 		
 		
