@@ -33,7 +33,7 @@ function initSwfu(){
 		upload_url:base+"uploadImg.htm?m="+Math.random(),
 		button_placeholder_id:"spanButtonPlaceholder",	// 浏览按钮
 		//最大上传文件大小
-		file_size_limit : 1024,//512KB
+		file_size_limit : 10240,//512KB
 		//允许上传的文件类型 
 //		file_types : "*.png;.PNG;*.doc;*.xls;*.zip;*.rar", // or you could use something like: "*.doc;*.wpd;*.pdf",
 		//文件类型描述

@@ -131,11 +131,11 @@ public class FileUploadAction extends BaseAction{
 				int start = fileFileName.get(i).lastIndexOf(".");
 				String fileName = df.format(new Date())+fileFileName.get(i).substring(start,fileFileName.get(i).length());
 				
-				String relPath = attachmentPath + fileName;
-				String destPath = this.getRealyPath(relPath);
-				
-				File tmpFile = new File(destPath);
-				this.upload(f, tmpFile);	//先暂存本地
+//				String relPath = attachmentPath + fileName;
+//				String destPath = this.getRealyPath(relPath);
+//				
+//				File tmpFile = new File(destPath);
+//				this.upload(f, tmpFile);	//先暂存本地
 				
 				//通过FTP上传到图片服务器上
 				/*
@@ -143,15 +143,9 @@ public class FileUploadAction extends BaseAction{
 				 */
 				//String subfixPath = "/product/";
 				// 构建上传路径	使用:/基础路径/年月日/图片名
-				SimpleDateFormat df2 = new SimpleDateFormat("yyyyMMdd");
-				String midPath = df2.format(new Date());
-				InputStream is = new FileInputStream(tmpFile);
-				FtpUtils.uploadFile(ftpUploadDirectory,ftpServer, Integer.parseInt(ftpPort), ftpUsername, ftpPassword, midPath, fileName, is);
-				//删除临时文件
-				tmpFile.delete();
 				
 				//获取图片的url地址
-				String url = "http://"+imageServer+":"+imagePort+imageBaseDir+midPath+"/"+fileName;
+				String url = this.doUploadFile(f, fileName, attachmentPath+imageBaseDir);
 				System.out.println("图片的url:"+url);
 				JSONObject json = new JSONObject();
 				json.put("fileName", fileFileName.get(i));
