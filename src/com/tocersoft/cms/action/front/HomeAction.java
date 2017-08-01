@@ -82,7 +82,7 @@ public class HomeAction extends BaseAction implements ModelDriven<IndexModel>{
 		//model.setListCmsArticle1(cmsselectHC);
 		
 		//华诚动态，显示三条语句
-		List<CmsArticle> getArticleByComplex1 = articleService.getArticleByComplex("3d5ffe8b-e890-11e4-ae9b-00266c0e7760",3,null,null);
+		List<CmsArticle> getArticleByComplex1 = articleService.getArticleByComplex("3d5ffe8b-e890-11e4-ae9b-00266c0e7760",4,null,null);
 		model.setListArticleByComplex1(getArticleByComplex1);
 		//存入session
 		session.setAttribute("ListArticleByComplex1", getArticleByComplex1);
