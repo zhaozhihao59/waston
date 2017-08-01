@@ -158,7 +158,7 @@
 								<input id="address" name="item.address" value="${item.address}" type="text" class="tc-input-text fl w600"/>
 							</s:if>
 							<s:else>
-								<input id="address" name="item.address" value="上海市威海路755号文新报业大厦26楼" type="text"  class="tc-input-text fl w600" />
+								<input id="address" name="item.address" value="上海市长乐路989号世纪商贸广场26楼" type="text"  class="tc-input-text fl w600" />
 							</s:else>
 							<span id="addressTip"></span>
 						</td>
@@ -173,7 +173,7 @@
 								<input id="addressEn" name="item.addressEn" value="${item.addressEn}" type="text" class="tc-input-text fl w600"/>
 							</s:if>
 							<s:else>
-								<input id="addressEn" name="item.addressEn" value="上海市威海路755号文新报业大厦26楼" type="text"  class="tc-input-text fl w600" />
+								<input id="addressEn" name="item.addressEn" value="上海市长乐路989号世纪商贸广场26楼" type="text"  class="tc-input-text fl w600" />
 							</s:else>
 							<span id="addressEnTip"></span>
 						</td>
@@ -188,7 +188,7 @@
 								<input id="addressJp" name="item.addressJp" value="${item.addressJp}" type="text" class="tc-input-text fl w600"/>
 							</s:if>
 							<s:else>
-								<input id="addressJp" name="item.addressJp" value="上海市威海路755号文新报业大厦26楼" type="text"  class="tc-input-text fl w600" />
+								<input id="addressJp" name="item.addressJp" value="上海市长乐路989号世纪商贸广场26楼" type="text"  class="tc-input-text fl w600" />
 							</s:else>
 							<span id="addressJpTip"></span>
 						</td>
