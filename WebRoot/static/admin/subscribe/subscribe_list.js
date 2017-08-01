@@ -149,7 +149,7 @@ function exportEnroll(){
 			success : function(data) {
 				var result = data;
 				if(result.status=="success"){
-					window.location.href=basePath+"/download/downloadLocalFileByPath.htm?filePath="+data.path+"&fileName="+encodeURI(encodeURI("报名信息.xls"));
+					window.location.href=basePath+"/download/downloadLocalFileByPath.htm?filePath="+encodeURI(data.path)+"&fileName="+encodeURI(encodeURI("报名信息.xls"));
 				}
 			},
 			error : function() {

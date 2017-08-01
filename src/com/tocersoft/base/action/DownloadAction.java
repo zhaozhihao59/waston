@@ -79,6 +79,7 @@ public class DownloadAction extends BaseAction {
 			// 迅雷下载显示的文件名称，就是此处filiname
 			fileName = URLDecoder.decode(fileName, "UTF-8");; // 前台两次转码
 			fileName = new String(fileName.getBytes(), "ISO-8859-1"); // 各浏览器基本都支持ISO编码
+			filePath = URLDecoder.decode(filePath,"UTF-8");
 			// path是指欲下载的文件的路径。
             File file = new File(filePath);
             // 取得文件的后缀名。

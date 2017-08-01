@@ -166,7 +166,7 @@ function exportEnroll(){
 			success : function(data) {
 				var result = data;
 				if(result.status=="success"){
-					window.location.href=basePath+"/download/downloadLocalFileByPath.htm?filePath="+data.path+"&fileName="+encodeURI(encodeURI("活动报名名单.xls"));
+					window.location.href=basePath+"/download/downloadLocalFileByPath.htm?filePath="+encodeURI(data.path)+"&fileName="+encodeURI(encodeURI("活动报名名单.xls"));
 				}
 			},
 			error : function() {
