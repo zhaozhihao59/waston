@@ -380,9 +380,9 @@ public class ArticleFrontJpAction extends BaseAction implements ModelDriven<CmsA
 		pageResult.setCurrentPage(model.getPage());
 		CmsArticleCondition condition = model.getCondition();
 		String keyGet = model.getKey();
-		String key = Utils.stringFormat(keyGet);
-		condition.setKey(key);
-		model.setKey(key);
+//		String key = Utils.stringFormat(keyGet);
+		condition.setKey(keyGet);
+		model.setKey(keyGet);
 		cmsArticleService.getArticleListByPage(pageResult, condition);
 		
 		model.setPageResult(pageResult);

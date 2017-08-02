@@ -131,10 +131,10 @@ public class HomeJpAction extends BaseAction implements ModelDriven<IndexModel>{
 		try {
 		// 获取查询标题的内容
 		String searchName = model.getSearchName();
-		String searchNames = null;
-		if(StringUtils.isNotBlank(searchName)){
-			searchNames = new String(searchName.getBytes("iso-8859-1"),"utf-8");
-		}
+		String searchNames = searchName;
+//		if(StringUtils.isNotBlank(searchName)){
+//			searchNames = new String(searchName.getBytes("iso-8859-1"),"utf-8");
+//		}
 		// 根据标题查询
 		CmsArticleCondition cc = new CmsArticleCondition();
 		String channelArray []= new String[]{"3d5ffe8b-e890-11e4-ae9b-00266c0e7760","439c9076-e890-11e4-ae9b-00266c0e7760","c1272bc2-ee3e-11e4-a8bb-0071cc954734","c884a615-ee3e-11e4-a8bb-0071cc954734","d25b2a55-ee3e-11e4-a8bb-0071cc954734","d987e778-ee3e-11e4-a8bb-0071cc954734","bba13349-e891-11e4-ae9b-00266c0e7760","c25f9c04-e891-11e4-ae9b-00266c0e7760","cec7815c-e891-11e4-ae9b-00266c0e7760","d4c4dcbf-e891-11e4-ae9b-00266c0e7760"};

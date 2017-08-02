@@ -130,10 +130,10 @@ public class HomeEnAction extends BaseAction implements ModelDriven<IndexModel>{
 	public String search() throws UnsupportedEncodingException {
 		// 获取查询标题的内容
 		String searchName = model.getSearchName();
-		String searchNames = null;
-		if(StringUtils.isNotBlank(searchName)){
-			searchNames = new String(searchName.getBytes("iso-8859-1"),"utf-8");
-		}
+		String searchNames = searchName;
+//		if(StringUtils.isNotBlank(searchName)){
+//			searchNames = new String(searchName.getBytes("iso-8859-1"),"utf-8");
+//		}
 		// 根据标题查询
 		CmsArticleCondition cc = new CmsArticleCondition();
 		cc.setEn("en");
