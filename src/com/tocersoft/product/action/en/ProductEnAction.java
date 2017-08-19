@@ -105,7 +105,7 @@ public class ProductEnAction extends BaseAction implements ModelDriven<ProductMo
 				model.setCategoryAndBrandName(category.getNameEn());
 				condition.setCategoryId(categoryId);
 			}else if(StringUtils.isNotBlank(brandId)){
-				if(new String(brandId.getBytes("ISO-8859-1"),"UTF-8").equals("BrandZone")){
+				if(brandId.equals("BrandZone")){
 					// 查询所有品牌产品
 					model.setCategoryAndBrandName("Brand zone");
 				}else{
@@ -165,7 +165,7 @@ public class ProductEnAction extends BaseAction implements ModelDriven<ProductMo
 		model.setProductBrand(brand);
 		String categoryAndBrandName = model.getCategoryAndBrandName();
 		if(categoryAndBrandName != null){
-			model.setCategoryAndBrandName(new String(categoryAndBrandName.getBytes("ISO-8859-1"),"UTF-8"));
+			model.setCategoryAndBrandName(categoryAndBrandName);
 		}
 		//根据产品Id取到相应的产品属性
 		List<ProductAttr> proAttrList = productAttrService.listProductAttrByPid(product.getId());

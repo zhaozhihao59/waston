@@ -85,7 +85,7 @@ public class ProfessionalFrontAction extends BaseAction implements ModelDriven<P
 			pageResult.setPageSize(8);
 			pageResult.setCurrentPage(model.getPage());
 			if(StringUtils.isNotBlank(condition.getName())){
-				condition.setName(new  String(condition.getName().getBytes("iso-8859-1"),"utf-8"));
+				condition.setName(condition.getName());
 			}
 			professionalService.listProfessionalByPage(pageResult, condition);
 			for (Professional pro : pageResult.getResult()) {
