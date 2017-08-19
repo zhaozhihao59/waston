@@ -111,7 +111,7 @@
 			</div>
 			<div class="mt10">
 				<div class="form-group fl" >
-					<input id="searchNames" value="${condition.nameJp}" type="text" style="width:300px;" class="form-control" placeholder="搜索 &hellip;" >
+					<input id="searchNames" value="${condition.nameJp}" type="text" style="width:300px;" class="form-control" placeholder="搜索 &hellip;" onkeypress="if(event.keyCode == 13){search();return false;}" >
 				</div>
 				<div onclick="search();return false;" id="search" class="wa-btn watson-index-ico w40 fl ml5" style="border: 1px solid #999999;"></div>
 				<div class="cb"></div>

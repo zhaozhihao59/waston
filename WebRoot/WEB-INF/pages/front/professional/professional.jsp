@@ -73,7 +73,7 @@
 			<div class="mt10">
 				<div class="form-group fl">
 					<input id="searchNames" value="${condition.name}" type="text"
-						style="width:300px;" class="form-control"
+						style="width:300px;" class="form-control" onkeypress="if(event.keyCode == 13){search();return false;}"
 						placeholder="搜索 &hellip;">
 				</div>
 				<div onclick="search();return false;" id="search"
